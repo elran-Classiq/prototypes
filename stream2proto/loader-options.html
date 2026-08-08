@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Classiq — Loader options</title>
+<style>
+  :root, .dark{
+    --background:#171717; --foreground:#fafafa;
+    --card:#1e1e1e; --primary:#d7f75b; --primary-foreground:#171717;
+    --muted:#262626; --muted-foreground:#a3a3a3;
+    --border:#2f2f2f; --border-strong:#646464;
+    /* easing vocabulary */
+    --spring:cubic-bezier(0.34,1.56,0.64,1);
+    --smooth:cubic-bezier(0.37,0,0.14,1);
+    --breath:cubic-bezier(0.45,0,0.55,1);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--background); color:var(--foreground);
+    font-family:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:48px 32px 80px;
+  }
+  .wrap{max-width:1120px;margin:0 auto}
+  header{margin-bottom:36px}
+  h1{font-size:26px;font-weight:650;letter-spacing:-.02em;margin:0 0 6px}
+  .sub{color:var(--muted-foreground);font-size:14px;margin:0;max-width:660px;line-height:1.5}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;color:var(--primary)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .stage{
+    position:relative;height:200px;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(120% 120% at 50% 0%, color-mix(in srgb,var(--primary) 5%,transparent), transparent 60%),#141414;
+    border-bottom:1px solid var(--border);
+  }
+  .meta{padding:14px 16px 16px}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .n{font-size:12px;font-weight:600;color:var(--primary-foreground);background:var(--primary);width:20px;height:20px;border-radius:6px;display:grid;place-items:center;flex:0 0 auto}
+  .name{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
+  .tag{margin-left:auto;font-size:10.5px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--primary);border:1px solid color-mix(in srgb,var(--primary) 35%,transparent);padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--primary) 8%,transparent)}
+  .desc{font-size:12.5px;color:var(--muted-foreground);line-height:1.5;margin:0}
+  .cap{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--muted-foreground);font-size:11.5px}
+  .cap .dot{width:5px;height:5px;border-radius:99px;background:var(--primary)}
+  .synth{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted-foreground);letter-spacing:.02em}
+
+  /* ============================================================
+     1 — SIGNAL TRACE (favicon): energy flows the rails, mark breathes.
+     Two non-harmonic layers → shimmer never repeats identically.
+  ============================================================ */
+  .l1{position:relative;width:132px;height:104px;animation:l1breath 3.1s var(--breath) infinite}
+  .l1 .mark{position:absolute;inset:0;-webkit-mask:var(--fav) center/contain no-repeat;mask:var(--fav) center/contain no-repeat}
+  .l1 .base{background:color-mix(in srgb,var(--foreground) 14%,transparent)}
+  .l1 .glow{
+    background:linear-gradient(100deg,transparent 32%,
+      color-mix(in srgb,var(--primary) 50%,transparent) 46%,
+      var(--primary) 50%,
+      color-mix(in srgb,var(--primary) 50%,transparent) 54%,transparent 68%);
+    background-size:260% 100%;
+    filter:drop-shadow(0 0 7px color-mix(in srgb,var(--primary) 65%,transparent));
+    animation:l1sweep 2.05s var(--smooth) infinite;
+  }
+  .l1 .spark{
+    background:linear-gradient(100deg,transparent 44%,color-mix(in srgb,var(--primary) 80%,#fff) 50%,transparent 56%);
+    background-size:220% 100%;mix-blend-mode:screen;opacity:.7;
+    animation:l1spark 1.37s ease-in-out infinite;
+  }
+  @keyframes l1sweep{0%{background-position:150% 0}55%{background-position:-30% 0}100%{background-position:-30% 0}}
+  @keyframes l1spark{0%{background-position:150% 0}50%,100%{background-position:-40% 0}}
+  @keyframes l1breath{0%,100%{filter:brightness(.92);transform:scale(.985)}50%{filter:brightness(1.12);transform:scale(1.015)}}
+
+  /* ============================================================
+     2 — QUBIT ORBIT: perspective depth (particle grows in front,
+     shrinks behind), non-harmonic orbits, wobbling frame.
+  ============================================================ */
+  .l2{width:112px;height:112px;position:relative;animation:l2wobble 6.5s ease-in-out infinite}
+  .l2 svg{position:absolute;inset:0}
+  .l2 .ring{fill:none;stroke:var(--border-strong);stroke-width:1.25;opacity:.5}
+  .l2 .orb{transform-origin:56px 56px;transform-box:fill-box;transform-origin:center}
+  .l2 .oa{animation:spin 2.6s linear infinite}
+  .l2 .ob{animation:spin 3.7s linear infinite reverse}
+  .l2 .oc{animation:spin 4.9s linear infinite}
+  .l2 .p{fill:var(--primary);filter:drop-shadow(0 0 5px color-mix(in srgb,var(--primary) 70%,transparent))}
+  .l2 .pa{animation:depth 2.6s var(--breath) infinite}
+  .l2 .pb{animation:depth 3.7s var(--breath) infinite -1.2s}
+  .l2 .pc{animation:depth 4.9s var(--breath) infinite -2.1s}
+  .l2 .nucleus{fill:var(--foreground);animation:nuc 1.9s var(--breath) infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes depth{0%,100%{transform:scale(.55);opacity:.45}50%{transform:scale(1.15);opacity:1}}
+  @keyframes nuc{0%,100%{r:3;opacity:.6}50%{r:4.4;opacity:1}}
+  @keyframes l2wobble{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+
+  /* ============================================================
+     3 — AMPLITUDE BARS: each bar its own height, duration & easing
+     → a living, drifting wave that never loops cleanly.
+  ============================================================ */
+  .l3{display:flex;align-items:flex-end;gap:6px;height:76px}
+  .l3 span{width:9px;border-radius:4px;background:var(--primary);box-shadow:0 0 8px color-mix(in srgb,var(--primary) 45%,transparent);animation:l3wave var(--d,1.1s) var(--breath) infinite var(--delay,0s);transform-origin:bottom}
+  .l3 span:nth-child(1){--d:1.20s;--delay:-.10s;--hi:52px}
+  .l3 span:nth-child(2){--d:0.95s;--delay:-.45s;--hi:66px}
+  .l3 span:nth-child(3){--d:1.35s;--delay:-.20s;--hi:44px}
+  .l3 span:nth-child(4){--d:0.85s;--delay:-.60s;--hi:70px}
+  .l3 span:nth-child(5){--d:1.25s;--delay:-.05s;--hi:50px}
+  .l3 span:nth-child(6){--d:1.05s;--delay:-.35s;--hi:60px}
+  .l3 span:nth-child(7){--d:1.45s;--delay:-.25s;--hi:40px}
+  @keyframes l3wave{0%,100%{height:12px;opacity:.4}50%{height:var(--hi,56px);opacity:1}}
+
+  /* ============================================================
+     4 — GATE SWEEP: eased scan with a soft trail, gates pop with a
+     spring, scan drifts vertically so the pass feels hand-made.
+  ============================================================ */
+  .l4{width:180px;height:96px;position:relative}
+  .l4 svg{position:absolute;inset:0}
+  .l4 .wire{stroke:var(--border-strong);stroke-width:1.5}
+  .l4 .gate{fill:none;stroke:color-mix(in srgb,var(--foreground) 28%,transparent);stroke-width:1.5;transform-box:fill-box;transform-origin:center}
+  .l4 .g1 .gate{animation:gatePop 2.6s var(--smooth) infinite .30s}
+  .l4 .g2 .gate{animation:gatePop 2.6s var(--smooth) infinite .78s}
+  .l4 .g3 .gate{animation:gatePop 2.6s var(--smooth) infinite 1.20s}
+  .l4 .g4 .gate{animation:gatePop 2.6s var(--smooth) infinite 1.20s}
+  .l4 .scan{stroke:var(--primary);stroke-width:2;filter:drop-shadow(0 0 7px var(--primary));animation:scanX 2.6s var(--smooth) infinite}
+  .l4 .trail{stroke:var(--primary);stroke-width:10;opacity:.12;filter:blur(3px);animation:scanX 2.6s var(--smooth) infinite}
+  @keyframes scanX{
+    0%{transform:translate(4px,4px);opacity:0}
+    10%{opacity:1}
+    50%{transform:translate(86px,-4px)}
+    90%{opacity:1}
+    100%{transform:translate(168px,4px);opacity:0}
+  }
+  @keyframes gatePop{
+    0%,4%,52%,100%{stroke:color-mix(in srgb,var(--foreground) 28%,transparent);fill:none;transform:scale(1)}
+    14%{stroke:var(--primary);fill:color-mix(in srgb,var(--primary) 22%,transparent);transform:scale(1.18)}
+    34%{stroke:var(--primary);fill:color-mix(in srgb,var(--primary) 14%,transparent);transform:scale(1)}
+  }
+
+  /* ============================================================
+     5 — SUPERPOSITION: each qubit its own radius, period & phase →
+     a shimmering cloud that gathers & scatters, not a rigid pulse.
+  ============================================================ */
+  .l5{width:120px;height:120px;position:relative}
+  .l5 i{position:absolute;top:50%;left:50%;width:10px;height:10px;margin:-5px;border-radius:99px;background:var(--primary);box-shadow:0 0 9px color-mix(in srgb,var(--primary) 55%,transparent);animation:l5orbit var(--d) var(--breath) infinite var(--delay)}
+  .l5 i:nth-child(1){--a:12deg; --r:46px;--d:2.1s;--delay:-.0s}
+  .l5 i:nth-child(2){--a:70deg; --r:38px;--d:2.6s;--delay:-.4s}
+  .l5 i:nth-child(3){--a:128deg;--r:50px;--d:1.9s;--delay:-.9s}
+  .l5 i:nth-child(4){--a:196deg;--r:34px;--d:2.8s;--delay:-.3s}
+  .l5 i:nth-child(5){--a:252deg;--r:48px;--d:2.3s;--delay:-.7s}
+  .l5 i:nth-child(6){--a:312deg;--r:40px;--d:2.05s;--delay:-1.1s}
+  @keyframes l5orbit{
+    0%,100%{transform:rotate(var(--a)) translateX(6px) scale(.55);opacity:.4}
+    50%{transform:rotate(calc(var(--a) + 14deg)) translateX(var(--r)) scale(1.05);opacity:1}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .l1,.l1 .glow,.l1 .spark{animation:none}
+    .l1 .glow{background-position:50% 0;opacity:.9}.l1 .spark{opacity:0}
+    .l2,.l2 .oa,.l2 .ob,.l2 .oc,.l2 .pa,.l2 .pb,.l2 .pc,.l2 .nucleus{animation:none}
+    .l3 span{animation:none;height:calc(var(--hi,40px) * .7);opacity:.85}
+    .l4 .g1 .gate,.l4 .g2 .gate,.l4 .g3 .gate,.l4 .g4 .gate{animation:none}
+    .l4 .scan,.l4 .trail{animation:none;transform:translate(86px,0);opacity:.85}
+    .l5 i{animation:none;transform:rotate(var(--a)) translateX(var(--r));opacity:.85}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Loader options — Classiq Engineer</h1>
+    <p class="sub">Rebuilt for organic motion — non-harmonic layered timings, spring easing, depth &amp; breathing, so nothing loops in a mechanical way. Tokens are the live prototype's (lime <code>#d7f75b</code> on <code>#171717</code>); every option keeps a <code>prefers-reduced-motion</code> fallback.</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- 1 -->
+    <div class="card">
+      <div class="stage">
+        <div class="l1" style="--fav:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2215.5 25.5 16 13%22><path d=%22M28.9073 28.3529C28.2085 28.3529 27.6185 28.8338 27.4269 29.4938H21.7668V26.9663H16V32.9472H21.7668V30.4196H27.4269C27.6185 31.0797 28.2085 31.5606 28.9073 31.5606C29.7613 31.5606 30.4537 30.8425 30.4537 29.9567C30.4537 29.071 29.7613 28.3529 28.9073 28.3529Z%22 fill=%22%23fff%22/><path d=%22M27.2422 35.2941C27.2422 36.4794 26.3157 37.4402 25.1729 37.4402C24.03 37.4402 23.1035 36.4794 23.1035 35.2941C23.1035 34.1088 24.03 33.1479 25.1729 33.1479C26.3157 33.1479 27.2422 34.1088 27.2422 35.2941Z%22 fill=%22%23fff%22/></svg>');">
+          <div class="mark base"></div>
+          <div class="mark glow"></div>
+          <div class="mark spark"></div>
+        </div>
+        <div class="synth">synthesizing circuit…</div>
+      </div>
+      <div class="meta">
+        <div class="row"><span class="n">1</span><span class="name">Signal Trace</span><span class="tag">favicon</span></div>
+        <p class="desc">The real logomark, breathing while a lime signal (plus a faster white spark) flows the rails at offset speeds — the mark powering up. Most on-brand.</p>
+        <div class="cap"><span class="dot"></span>Built from the favicon geometry</div>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="card">
+      <div class="stage">
+        <div class="l2">
+          <svg viewBox="0 0 112 112">
+            <ellipse class="ring" cx="56" cy="56" rx="46" ry="17"/>
+            <ellipse class="ring" cx="56" cy="56" rx="46" ry="17" transform="rotate(60 56 56)"/>
+            <ellipse class="ring" cx="56" cy="56" rx="46" ry="17" transform="rotate(120 56 56)"/>
+            <circle class="nucleus" cx="56" cy="56" r="3.6"/>
+            <g class="orb oa"><circle class="p pa" cx="102" cy="56" r="4.4"/></g>
+            <g class="orb ob" transform="rotate(60 56 56)"><circle class="p pb" cx="102" cy="56" r="4"/></g>
+            <g class="orb oc" transform="rotate(120 56 56)"><circle class="p pc" cx="102" cy="56" r="4"/></g>
+          </svg>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="row"><span class="n">2</span><span class="name">Qubit Orbit</span></div>
+        <p class="desc">Three electrons on counter-rotating orbits, growing as they swing toward you and shrinking behind — real depth. The whole frame gently wobbles.</p>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="card">
+      <div class="stage">
+        <div class="l3"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="meta">
+        <div class="row"><span class="n">3</span><span class="name">Amplitude Bars</span></div>
+        <p class="desc">Each bar has its own height, tempo and phase, so the state-vector wave drifts and shimmers like something alive — never a clean repeat.</p>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="card">
+      <div class="stage">
+        <div class="l4">
+          <svg viewBox="0 0 180 96">
+            <line class="wire" x1="8" y1="30" x2="172" y2="30"/>
+            <line class="wire" x1="8" y1="66" x2="172" y2="66"/>
+            <g class="g1"><rect class="gate" x="30" y="18" width="24" height="24" rx="4"/></g>
+            <g class="g2"><rect class="gate" x="78" y="54" width="24" height="24" rx="4"/></g>
+            <g class="g3"><rect class="gate" x="118" y="18" width="24" height="24" rx="4"/></g>
+            <g class="g4"><rect class="gate" x="118" y="54" width="24" height="24" rx="4"/></g>
+            <line class="trail" x1="0" y1="8" x2="0" y2="88"/>
+            <line class="scan" x1="0" y1="8" x2="0" y2="88"/>
+          </svg>
+        </div>
+        <div class="synth">6 qubits · 3 layers · 18 params</div>
+      </div>
+      <div class="meta">
+        <div class="row"><span class="n">4</span><span class="name">Gate Sweep</span></div>
+        <p class="desc">An eased scan with a soft glow trail drifts across the circuit, springing each gate as synthesis "compiles" it. Narrates the wait.</p>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="card">
+      <div class="stage">
+        <div class="l5"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="meta">
+        <div class="row"><span class="n">5</span><span class="name">Superposition</span></div>
+        <p class="desc">A cloud of qubits, each with its own radius and rhythm, gathering to a point and scattering out — superposition to measurement, breathing.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
