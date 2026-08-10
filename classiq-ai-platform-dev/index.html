@@ -144,7 +144,7 @@ button.submit:focus-visible{outline:2px solid var(--primary); outline-offset:2px
     e.preventDefault();
     var val = (input.value || "").trim();
     if (val.toLowerCase() === PASS) {
-      try { sessionStorage.setItem("cq_unlocked", "1"); } catch(_){}
+      try { sessionStorage.setItem("cq_unlocked", "1"); sessionStorage.setItem("cq_intro", "1"); } catch(_){}
       location.replace("./app.html");
       return;
     }

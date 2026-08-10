@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <script>try{if(sessionStorage.getItem("cq_unlocked")!=="1")location.replace("./index.html")}catch(e){location.replace("./index.html")}</script>
+<script>(function(){try{if(sessionStorage.getItem("cq_intro")==="1"){var d=document.documentElement;d.classList.add("cq-intro");sessionStorage.removeItem("cq_intro");window.addEventListener("load",function(){setTimeout(function(){d.classList.remove("cq-intro");},2700);});}}catch(e){}})();</script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Classiq AI — Agentic Platform (shadcn build)</title>
@@ -881,6 +882,37 @@ button{font-family:inherit}
   .composer.grad.on::before{opacity:1;animation:none}
 }
 @media (max-width:820px){ .sidebar{position:absolute;z-index:80;height:100%} .canvas{display:none} }
+</style>
+
+<style>
+/* ===== password-unlock intro reveal: menu -> AI chat -> background ===== */
+body.dark{--mesh-o:.12}
+body.light{--mesh-o:.16}
+html.cq-intro{overflow:hidden}                 /* hide transient scroll during reveal */
+
+@keyframes cqMenuIn{from{opacity:.001;transform:translateX(-108%)}to{opacity:1;transform:none}}
+@keyframes cqBarIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes cqRiseBlur{from{opacity:0;transform:translateY(20px);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes cqCardPop{from{transform:translateY(14px)}to{transform:none}}
+@keyframes cqBgReveal{from{opacity:0;transform:scale(1.06)}to{opacity:var(--mesh-o,.12);transform:none}}
+
+/* beat 1 — the menu slides in from the left */
+html.cq-intro .sidebar{animation:cqMenuIn .62s cubic-bezier(.2,0,0,1) both;will-change:transform,opacity}
+html.cq-intro .topbar{animation:cqBarIn .5s cubic-bezier(.2,0,0,1) .14s both}
+/* beat 2 — the AI chat / hero rises and sharpens into place */
+html.cq-intro .greeting{animation:cqRiseBlur .72s cubic-bezier(.2,0,0,1) .42s both;will-change:transform,opacity,filter}
+html.cq-intro .greeting .option-card{animation:cqCardPop .5s cubic-bezier(.2,0,0,1) both}
+html.cq-intro .greeting .option-card:nth-child(1){animation-delay:.66s}
+html.cq-intro .greeting .option-card:nth-child(2){animation-delay:.74s}
+html.cq-intro .greeting .option-card:nth-child(3){animation-delay:.82s}
+/* beat 3 — the triangulated mesh background washes in last */
+html.cq-intro .chat::before{animation:cqBgReveal 1.15s cubic-bezier(.2,0,0,1) .95s both;will-change:transform,opacity}
+
+@media (prefers-reduced-motion: reduce){
+  html.cq-intro .sidebar,html.cq-intro .topbar,html.cq-intro .greeting,
+  html.cq-intro .greeting .option-card,html.cq-intro .chat::before{
+    animation-duration:.01ms!important;animation-delay:0ms!important}
+}
 </style>
 </head>
 <body class="dark">
