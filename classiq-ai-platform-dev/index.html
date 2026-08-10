@@ -1,0 +1,2632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Classiq AI — Agentic Platform (shadcn build)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<!-- React + Babel (vendored, runs offline) -->
+<script src="./react.min.js"></script>
+<script src="./react-dom.min.js"></script>
+<script src="./babel.min.js"></script>
+
+<style>
+/* ============================================================
+   Classiq shadcn/ui token layer  (brain/design-system/tokens.md)
+   Semantic names map 1:1 to shadcn/ui. Dark is default; light is
+   first-class. Primary is mode-aware: black on light, lime on dark.
+   ============================================================ */
+:root, .dark {
+  --background:#171717; --foreground:#fafafa;
+  --card:#1e1e1e; --card-foreground:#fafafa;
+  --popover:#1e1e1e; --popover-foreground:#fafafa;
+  --primary:#d7f75b; --primary-foreground:#171717;
+  --secondary:#262626; --secondary-foreground:#fafafa;
+  --muted:#262626; --muted-foreground:#a3a3a3;
+  --accent:#262626; --accent-foreground:#fafafa;
+  --destructive:#ff6467; --destructive-foreground:#ffffff;
+  --border:#2f2f2f; --border-strong:#646464; --input:#2f2f2f;
+  --ring:#646464;
+  /* app surfaces (shadcn --sidebar family) */
+  --sidebar:#0c0c0d; --sidebar-foreground:#e6e6e6; --sidebar-border:#1f1f22;
+  --canvas:#0e0e10;
+  --grad-a:#d7f75b; --grad-b:#5be0e6; --grad-c:#9b7cff;
+  color-scheme: dark;
+}
+.light {
+  --background:#ffffff; --foreground:#0a0a0a;
+  --card:#ffffff; --card-foreground:#0a0a0a;
+  --popover:#ffffff; --popover-foreground:#0a0a0a;
+  --primary:#171717; --primary-foreground:#fafafa;
+  --secondary:#f5f5f5; --secondary-foreground:#171717;
+  --muted:#f5f5f5; --muted-foreground:#737373;
+  --accent:#e8e8e8; --accent-foreground:#171717;   /* visible light-grey hover/active */
+  --destructive:#e7000b; --destructive-foreground:#ffffff;
+  --border:#e5e5e5; --border-strong:#d4d4d4; --input:#e5e5e5;
+  --ring:#a1a1a1;
+  --sidebar:#fafafa; --sidebar-foreground:#171717; --sidebar-border:#ececec;
+  --canvas:#f7f7f8;
+  color-scheme: light;
+}
+
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0; background:var(--background); color:var(--foreground);
+  font-family:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.mono{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace}
+button{font-family:inherit}
+::selection{background:color-mix(in srgb,var(--primary) 30%,transparent)}
+
+/* focus visibility — never color alone */
+:focus-visible{outline:2px solid var(--ring); outline-offset:2px; border-radius:8px}
+
+/* ---------- shadcn primitives ---------- */
+/* Button */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:36px;padding:0 16px;border-radius:8px;border:1px solid transparent;
+  font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;
+  transition:background .14s ease,border-color .14s ease,color .14s ease,opacity .14s;
+  background:transparent;color:var(--foreground)}
+.btn:disabled{opacity:.5;pointer-events:none}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-primary:hover{background:color-mix(in srgb,var(--primary) 90%,#000)}
+.btn-secondary{background:var(--secondary);color:var(--secondary-foreground)}
+.btn-secondary:hover{background:color-mix(in srgb,var(--secondary) 80%,var(--foreground) 6%)}
+.btn-outline{border-color:var(--border);background:transparent}
+.btn-outline:hover{background:var(--accent)}
+.btn-ghost:hover{background:var(--accent)}
+.btn-sm{height:30px;padding:0 12px;font-size:13px;border-radius:8px}
+.btn-icon{width:34px;height:34px;padding:0;border-radius:8px}
+.btn-icon.btn-sm{width:30px;height:30px}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;
+  border-radius:9999px;font-size:12px;font-weight:500;line-height:1;border:1px solid transparent}
+.badge-secondary{background:var(--secondary);color:var(--secondary-foreground)}
+.badge-outline{border-color:var(--border);color:var(--muted-foreground)}
+.badge-success{background:color-mix(in srgb,#22c55e 18%,transparent);color:#7ee2a8;border-color:color-mix(in srgb,#22c55e 30%,transparent)}
+.light .badge-success{color:#15803d}
+
+/* Avatar */
+.avatar{width:32px;height:32px;border-radius:9999px;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background:linear-gradient(135deg,var(--grad-c),var(--grad-b));
+  color:#0b0b0d;font-weight:600;font-size:12px}
+
+/* Separator */
+.sep{background:var(--border);border:0;flex:0 0 auto}
+.sep-h{height:1px;width:100%;margin:0}
+.sep-v{width:1px;align-self:stretch}
+
+/* Tooltip */
+.tt{position:relative;display:inline-flex}
+.tt>.tt-body{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);
+  background:var(--popover);color:var(--popover-foreground);border:1px solid var(--border);
+  padding:5px 9px;border-radius:8px;font-size:12px;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .12s ease,transform .12s ease;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:60}
+.tt:hover>.tt-body,.tt:focus-within>.tt-body{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Item (list row / artifact card) */
+.item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;
+  border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;color:inherit;
+  width:100%;text-align:left;background:transparent}
+.item:hover{background:var(--accent)}
+.item.selected{background:var(--accent);border-color:var(--border)}
+.item.card{border-color:var(--border);background:var(--card);cursor:default}
+.item .item-media{width:32px;height:32px;border-radius:8px;flex:0 0 auto;display:flex;
+  align-items:center;justify-content:center;background:var(--secondary);color:var(--muted-foreground)}
+.item .item-content{min-width:0;flex:1}
+.item .item-title{font-size:13.5px;font-weight:500;color:var(--foreground);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .item-desc{font-size:12px;color:var(--muted-foreground);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .item-actions{display:flex;align-items:center;gap:2px;flex:0 0 auto}
+
+/* Kbd */
+.kbd{display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:6px;
+  border:1px solid var(--border);background:var(--secondary);color:var(--muted-foreground);
+  font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1}
+
+/* Spinner */
+.spinner{width:16px;height:16px;border-radius:9999px;border:2px solid color-mix(in srgb,var(--foreground) 20%,transparent);
+  border-top-color:var(--foreground);animation:spin .7s linear infinite;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Dropdown */
+.menu{position:absolute;min-width:220px;background:var(--popover);color:var(--popover-foreground);
+  border:1px solid var(--border);border-radius:12px;padding:6px;z-index:70;
+  box-shadow:0 12px 32px rgba(0,0,0,.45)}
+.menu-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border-radius:8px;
+  font-size:13.5px;cursor:pointer;background:transparent;border:0;color:inherit;text-align:left}
+.menu-item:hover{background:var(--accent)}
+.menu-label{padding:6px 10px 4px;font-size:11px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.06em}
+
+/* ---------- app shell ---------- */
+.app{display:flex;height:100%;overflow:hidden}
+.sidebar{width:255px;flex:0 0 auto;background:var(--sidebar);color:var(--sidebar-foreground);
+  border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;
+  transition:width .22s cubic-bezier(.2,0,0,1);overflow:hidden}
+.sidebar.rail{width:52px}
+.rail .sb-head{padding:0;justify-content:center}
+.rail .railbtn{width:36px;height:36px}
+.app.hidenav .sidebar{width:0;border-right-color:transparent}
+.sb-head{display:flex;align-items:center;justify-content:space-between;gap:8px;height:64px;flex:0 0 auto;padding:0 16px}
+.logo{display:flex;align-items:center;height:20px}
+.logo img{height:13px;width:auto;display:block}
+/* light mode: render the Classiq logo black; dark keeps the original lime */
+.light .logo img{filter:brightness(0)}
+.rail .logo{justify-content:center}
+.rail .logo img{height:16px}
+.sb-newbtn{padding:8px}
+.rail .sb-newbtn{display:flex;justify-content:center}
+.sb-scroll{flex:1;overflow-y:auto;padding:0 8px}
+.sb-section{font-size:12px;color:var(--muted-foreground);letter-spacing:.01em;padding:14px 8px 6px}
+.sb-foot{padding:8px;border-top:1px solid var(--sidebar-border)}
+.rail .sb-foot{display:flex;justify-content:center}
+/* menu rows — Figma: 32px tall, 8px pad, icon 16 @ x8, text @ x32 */
+.mrow{display:flex;align-items:center;gap:8px;width:100%;height:32px;padding:0 8px;border-radius:8px;
+  font-size:14px;color:var(--sidebar-foreground);cursor:pointer;background:transparent;border:0;text-align:left;
+  text-decoration:none;transition:background .12s}
+.mrow:hover{background:var(--accent)}
+.mrow.active{background:var(--accent)}
+.mrow .mlabel{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow .mdot{width:6px;height:6px;border-radius:9999px;background:var(--primary);flex:0 0 auto}
+.mrow .ext{color:var(--muted-foreground);flex:0 0 auto}
+.mrow .mico{flex:0 0 auto;color:var(--sidebar-foreground);display:flex}
+.mrow.muted,.mrow.muted .mico{color:var(--muted-foreground)}
+.railbtn{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:0;color:var(--sidebar-foreground);cursor:pointer;transition:background .12s}
+.railbtn:hover{background:var(--accent)}
+.profile{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer;width:100%;background:transparent;border:0;color:inherit;text-align:left}
+.profile:hover{background:var(--accent)}
+.profile .who{min-width:0;flex:1}
+.profile .nm{font-size:14px;font-weight:600;color:var(--foreground);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile .co{font-size:12px;color:var(--muted-foreground)}
+.avatar-img{width:32px;height:32px;border-radius:9999px;object-fit:cover;flex:0 0 auto}
+
+/* workspace */
+.workspace{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--background)}
+.topbar{height:52px;flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid var(--border)}
+.crumb{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted-foreground)}
+.crumb .cur{color:var(--foreground);font-weight:500}
+.topbar .grow{flex:1}
+
+/* split */
+.split{flex:1;min-height:0;display:flex;position:relative}
+.split.resizing{cursor:col-resize;user-select:none}
+.split.resizing *{pointer-events:none}
+.chat{flex:0 0 auto;min-width:0;display:flex;flex-direction:column;position:relative}
+/* barely-visible organic triangular mesh behind the chat (jittered wireframe) */
+.chat::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:url("./assets/mesh.svg");background-size:cover;background-position:top left;background-repeat:no-repeat}
+.dark .chat::before{opacity:.12}
+.light .chat::before{opacity:.16}
+.chat>*{position:relative;z-index:1}
+.split.nocanvas .chat{flex:1 1 auto !important}
+/* chat header (only with canvas open) — carries the collapse toggle */
+.chat-head{flex:0 0 auto;display:flex;align-items:center;gap:8px;height:48px;padding:0 8px 0 16px;border-bottom:1px solid var(--border)}
+.chat-head .grow{flex:1}
+.chat-head-title{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:500;color:var(--foreground)}
+.chat-head-title>svg{color:var(--muted-foreground)}
+/* collapsed chat → vertical rail to bring it back */
+.chat-expand-rail{flex:0 0 auto;width:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  border:0;border-right:1px solid var(--border);background:var(--background);color:var(--muted-foreground);cursor:pointer;transition:background .12s,color .12s}
+.chat-expand-rail:hover{background:var(--accent);color:var(--foreground)}
+.canvas{flex:1 1 0;min-width:0;background:var(--canvas);border-left:1px solid var(--border);display:flex;flex-direction:column}
+
+/* resizer */
+.resizer{flex:0 0 auto;width:10px;margin:0 -5px;position:relative;z-index:20;cursor:col-resize;
+  display:flex;align-items:center;justify-content:center;background:transparent}
+.resizer::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--border);transition:background .12s}
+.resizer:hover::before,.resizer:focus-visible::before,.split.resizing .resizer::before{background:var(--primary)}
+.resizer .grip{width:6px;height:34px;border-radius:9999px;background:var(--border-strong);opacity:0;transition:opacity .12s;z-index:1}
+.resizer:hover .grip,.resizer:focus-visible .grip{opacity:1}
+.resizer:focus-visible{outline:none}
+
+/* chat body */
+.chat-scroll{flex:1;overflow-y:auto;padding:22px 0 8px}
+/* auto-hiding scrollbars — thumb reveals only on container hover */
+.chat-scroll,.canvas-body,.sb-scroll,.vpane-body,.drawer-body{scrollbar-width:thin;scrollbar-color:transparent transparent;transition:scrollbar-color .18s ease}
+.chat-scroll:hover,.canvas-body:hover,.sb-scroll:hover,.vpane-body:hover,.drawer-body:hover,
+.chat-scroll:focus-within,.canvas-body:focus-within,.sb-scroll:focus-within,.vpane-body:focus-within,.drawer-body:focus-within{scrollbar-color:var(--border-strong) transparent}
+.chat-scroll::-webkit-scrollbar,.canvas-body::-webkit-scrollbar,.sb-scroll::-webkit-scrollbar,.vpane-body::-webkit-scrollbar,.drawer-body::-webkit-scrollbar{width:10px;height:10px}
+.chat-scroll::-webkit-scrollbar-track,.canvas-body::-webkit-scrollbar-track,.sb-scroll::-webkit-scrollbar-track,.vpane-body::-webkit-scrollbar-track,.drawer-body::-webkit-scrollbar-track{background:transparent}
+.chat-scroll::-webkit-scrollbar-thumb,.canvas-body::-webkit-scrollbar-thumb,.sb-scroll::-webkit-scrollbar-thumb,.vpane-body::-webkit-scrollbar-thumb,.drawer-body::-webkit-scrollbar-thumb{
+  background:transparent;border:3px solid transparent;background-clip:content-box;border-radius:9999px;transition:background-color .18s ease}
+.chat-scroll:hover::-webkit-scrollbar-thumb,.canvas-body:hover::-webkit-scrollbar-thumb,.sb-scroll:hover::-webkit-scrollbar-thumb,.vpane-body:hover::-webkit-scrollbar-thumb,.drawer-body:hover::-webkit-scrollbar-thumb,
+.chat-scroll:focus-within::-webkit-scrollbar-thumb,.canvas-body:focus-within::-webkit-scrollbar-thumb,.sb-scroll:focus-within::-webkit-scrollbar-thumb,.vpane-body:focus-within::-webkit-scrollbar-thumb,.drawer-body:focus-within::-webkit-scrollbar-thumb{background:var(--border-strong);background-clip:content-box}
+/* same hover-only scrollbars for the fullscreen result page + jobs list */
+.fs-stage,.rfull-main,.jh-list{scrollbar-width:thin;scrollbar-color:transparent transparent;transition:scrollbar-color .18s ease}
+.fs-stage:hover,.rfull-main:hover,.jh-list:hover,
+.fs-stage:focus-within,.rfull-main:focus-within,.jh-list:focus-within{scrollbar-color:var(--border-strong) transparent}
+.fs-stage::-webkit-scrollbar,.rfull-main::-webkit-scrollbar,.jh-list::-webkit-scrollbar{width:10px;height:10px}
+.fs-stage::-webkit-scrollbar-track,.rfull-main::-webkit-scrollbar-track,.jh-list::-webkit-scrollbar-track{background:transparent}
+.fs-stage::-webkit-scrollbar-thumb,.rfull-main::-webkit-scrollbar-thumb,.jh-list::-webkit-scrollbar-thumb{
+  background:transparent;border:3px solid transparent;background-clip:content-box;border-radius:9999px;transition:background-color .18s ease}
+.fs-stage:hover::-webkit-scrollbar-thumb,.rfull-main:hover::-webkit-scrollbar-thumb,.jh-list:hover::-webkit-scrollbar-thumb,
+.fs-stage:focus-within::-webkit-scrollbar-thumb,.rfull-main:focus-within::-webkit-scrollbar-thumb,.jh-list:focus-within::-webkit-scrollbar-thumb{background:var(--border-strong);background-clip:content-box}
+.chat-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;flex-direction:column;gap:18px}
+/* shadcn AI chat: lime user bubble (right), assistant avatar + content (left) */
+.msg-user{align-self:flex-end;max-width:82%;color:#ffffff;background:#784EFF;
+  padding:9px 14px;border-radius:16px;border-bottom-right-radius:6px;font-size:14px;font-weight:500}
+.ai-row{align-self:stretch;display:flex;gap:10px;align-items:flex-start}
+/* smooth message entrance */
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.msg-user,.ai-row{animation:msgIn .34s cubic-bezier(.2,0,0,1) both}
+.ai-row .ai-avatar{animation:msgIn .34s cubic-bezier(.2,0,0,1) both;animation-delay:.04s}
+.ai-avatar{width:28px;height:28px;border-radius:9999px;flex:0 0 auto;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;background:var(--secondary);color:var(--primary);
+  border:1px solid var(--border)}
+.ai-body{min-width:0;flex:1}
+.msg-ai{font-size:14.5px;line-height:1.62;color:var(--foreground)}
+.msg-ai h3{font-size:16px;font-weight:600;margin:6px 0 6px;display:flex;align-items:center;gap:8px}
+.msg-ai p{margin:0 0 10px}
+.msg-ai .lead{color:var(--muted-foreground)}
+.msg-ai code{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:var(--secondary);
+  padding:1.5px 6px;border-radius:6px;color:var(--foreground)}
+.tool-call{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted-foreground);cursor:pointer;
+  background:transparent;border:0;padding:2px 0}
+.tool-call:hover{color:var(--foreground)}
+.reason{border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden}
+.reason>summary{list-style:none;cursor:pointer;padding:9px 12px;display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--muted-foreground)}
+.reason>summary::-webkit-details-marker{display:none}
+.reason[open]>summary{border-bottom:1px solid var(--border);color:var(--foreground)}
+.reason .rbody{padding:10px 12px;font-size:13px;color:var(--muted-foreground);line-height:1.6}
+.status{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.eqn{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;color:var(--foreground);overflow-x:auto}
+
+/* greeting (empty) — composer centered, chips beneath */
+.greeting{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px}
+.greeting h1{font-size:28px;font-weight:600;margin:0 0 4px;text-align:center;
+  min-height:40px;display:flex;align-items:center;justify-content:center}
+.greeting h1.rotating{opacity:0;transform:translateY(6px);transition:opacity .42s ease,transform .42s ease}
+.greeting h1.rotating.in{opacity:1;transform:none}
+.greeting .composer-wrap.centered{padding:0;width:100%;max-width:680px}
+.greeting .composer-wrap.centered .composer-inner{max-width:none}
+
+/* composer */
+.composer-wrap{flex:0 0 auto;padding:14px 24px 20px}
+.composer-inner{max-width:720px;margin:0 auto}
+.composer{position:relative;border-radius:16px;background:var(--card);border:1px solid var(--border);
+  padding:2px;transition:border-color .15s}
+.composer.grad::before{content:"";position:absolute;inset:-1px;border-radius:17px;padding:1px;
+  background:conic-gradient(from var(--a,0deg),#8b5cff,#5b8cff,#a9e7ff,#5b8cff,#8b5cff);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .2s}
+.composer.grad.on::before{opacity:1;animation:spin-grad 5s linear infinite}
+@keyframes spin-grad{to{--a:360deg}}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+.composer-row{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 10px;position:relative;background:var(--card);border-radius:15px}
+.send-btn{border-radius:9999px}
+.composer textarea{flex:1;border:0;background:transparent;resize:none;color:var(--foreground);font:inherit;
+  font-size:14.5px;line-height:1.5;padding:7px 2px;max-height:160px;outline:none}
+.composer textarea::placeholder{color:var(--muted-foreground)}
+
+/* canvas */
+/* single header row (replaces tabs + toolbar) */
+.canvas-head{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:48px;padding:0 8px 0 12px;border-bottom:1px solid var(--border)}
+.canvas-head .grow{flex:1}
+.canvas-head-title{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500;color:var(--foreground)}
+.canvas-head .count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;
+  border-radius:9999px;background:var(--secondary);color:var(--muted-foreground);font-size:12px;line-height:1}
+.canvas-head-cur{font-size:13.5px;font-weight:500;color:var(--foreground);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crumb-sep{color:var(--muted-foreground);font-size:13px}
+.back-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 8px 0 6px;border-radius:8px;flex:0 0 auto;
+  background:transparent;border:0;color:var(--muted-foreground);font:inherit;font-size:13px;cursor:pointer;
+  transition:background .12s,color .12s}
+.back-btn:hover{background:var(--accent);color:var(--foreground)}
+.head-sep{width:1px;height:20px;background:var(--border);flex:0 0 auto;margin:0 2px}
+/* artifact list (Claude-style: created artifacts collect here) */
+.artifact-list{padding:10px;display:flex;flex-direction:column;gap:4px}
+.artifact-list .item .ext{color:var(--muted-foreground);display:flex;flex:0 0 auto}
+.artifact-list .item .item-actions .btn{opacity:0;transition:opacity .12s}
+.artifact-list .item:hover .item-actions .btn,.artifact-list .item:focus-within .item-actions .btn{opacity:1}
+/* artifact switcher — action sheet that pops on click */
+.switch-trigger{display:inline-flex;align-items:center;gap:8px;height:32px;max-width:320px;padding:0 8px;border-radius:8px;
+  background:transparent;border:0;color:var(--foreground);font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .12s}
+.switch-trigger:hover{background:var(--accent)}
+.switch-trigger>svg:first-child{color:var(--muted-foreground);flex:0 0 auto}
+.switch-trigger-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.switcher-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:70;width:min(400px,88vw);overflow:visible;
+  background:var(--popover);color:var(--popover-foreground);border:1px solid var(--border);border-radius:16px;padding:12px;
+  box-shadow:0 16px 40px rgba(0,0,0,.45);animation:msgIn .16s cubic-bezier(.2,0,0,1) both}
+.switcher-head{display:flex;align-items:center;gap:8px;padding:2px 4px 10px}
+.switcher-head .art-h-title{flex:1;font-size:16px;font-weight:600;color:var(--foreground)}
+.art-dl{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 8px;border-radius:8px;border:0;background:transparent;
+  color:var(--muted-foreground);font:inherit;font-size:13.5px;cursor:pointer;transition:background .12s,color .12s}
+.art-dl:hover{background:var(--accent);color:var(--foreground)}
+.switcher-list{display:flex;flex-direction:column;gap:7px}
+.art-row{position:relative;display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:8px 10px;border-radius:12px;
+  border:1px solid transparent;background:transparent;color:var(--foreground);cursor:pointer;
+  transition:border-color .14s,background .14s,box-shadow .14s}
+.art-row:hover{background:var(--accent)}
+.art-row.active{border-color:var(--border-strong);box-shadow:0 0 0 1px var(--border-strong)}
+.art-thumb{flex:0 0 auto;width:40px;height:44px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  color:var(--muted-foreground);border:1px solid var(--border);
+  background:linear-gradient(155deg,var(--secondary),color-mix(in srgb,var(--secondary) 45%,var(--background)))}
+.art-row.active .art-thumb{color:var(--foreground);border-color:var(--border-strong)}
+.art-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.art-title{font-size:15px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.art-rename{font-size:15px;font-weight:600;line-height:1.2;color:var(--foreground);background:var(--secondary);
+  border:1px solid var(--border-strong);border-radius:6px;padding:2px 6px;width:100%;outline:none;font-family:inherit}
+.art-rename:focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 25%,transparent)}
+.art-row.editing{background:var(--accent);border-color:var(--border)}
+.art-sub{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted-foreground);min-width:0}
+.art-sub-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.art-panes{flex:0 0 auto;display:inline-flex;align-items:center;gap:3px;padding:0 6px;height:17px;border-radius:999px;
+  font-size:11px;font-weight:600;line-height:1;color:var(--muted-foreground);
+  background:var(--secondary);border:1px solid var(--border)}
+.art-panes svg{opacity:.75}
+.art-row.active .art-panes{color:var(--foreground);border-color:var(--border-strong)}
+.art-actions{flex:0 0 auto;display:flex;align-items:center;gap:2px}
+.art-actions .art-x{opacity:0;transition:opacity .12s}
+.art-row:hover .art-x,.art-row:focus-within .art-x{opacity:1}
+
+/* profile settings dialog (recomposed — Dialog not in kit) */
+.modal-scrim{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:rgba(15,15,17,.66);animation:scrimIn .16s ease both}
+.light .modal-scrim{background:rgba(38,38,38,.32)}
+@keyframes scrimIn{from{opacity:0}to{opacity:1}}
+.dialog{width:740px;max-width:100%;max-height:calc(100vh - 48px);overflow-y:auto;display:flex;flex-direction:column;gap:16px;
+  background:var(--background);color:var(--foreground);border:1px solid var(--border);border-radius:12px;padding:24px;
+  box-shadow:0 10px 15px -3px rgba(0,0,0,.2),0 4px 6px -4px rgba(0,0,0,.2);animation:dialogIn .18s cubic-bezier(.2,0,0,1) both}
+.light .dialog{box-shadow:0 10px 30px rgba(15,23,42,.14),0 4px 6px -4px rgba(15,23,42,.1)}
+@keyframes dialogIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+.dialog-head{display:flex;flex-direction:column;gap:6px}
+.dialog-titlerow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.dialog-title{margin:0;font-size:18px;font-weight:600;line-height:1.5}
+.dialog-desc{margin:0;font-size:14px;line-height:1.45;color:var(--muted-foreground)}
+.userinfo{display:flex;gap:48px;align-items:flex-start}
+.userinfo-ava{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px}
+.avatar-lg{width:100px;height:100px;border-radius:9999px;font-size:34px}
+.avatar-edit{background:transparent;border:0;cursor:pointer;font:inherit;font-size:14px;color:var(--muted-foreground);transition:color .12s}
+.avatar-edit:hover{color:var(--foreground)}
+.fields{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+.field-row{display:flex;align-items:center;gap:12px}
+.field-label{flex:0 0 140px;font-size:14px;font-weight:500;color:var(--card-foreground)}
+.input{display:block;width:100%;height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--input);
+  background:var(--background);color:var(--foreground);font:inherit;font-size:14px;box-shadow:0 1px 2px rgba(0,0,0,.06);
+  outline:none;transition:border-color .12s,box-shadow .12s}
+.input:focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 25%,transparent)}
+.input::placeholder{color:var(--muted-foreground)}
+.input.plain{border-color:transparent;background:transparent;box-shadow:none;padding-left:2px}
+.field-row .input{flex:1 1 0;min-width:0;width:auto}   /* profile modal: fill next to the label */
+.terms-title{margin:0 0 8px;font-size:14px;font-weight:500;color:var(--card-foreground)}
+.terms-body{margin:0;font-size:14px;font-weight:300;line-height:1.5;color:var(--muted-foreground)}
+.btn-destructive-outline{border:1px solid var(--destructive);color:var(--destructive);background:transparent;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.btn-destructive-outline:hover{background:color-mix(in srgb,var(--destructive) 12%,transparent)}
+.btn-destructive{background:var(--destructive);color:var(--destructive-foreground)}
+.btn-destructive:hover{background:color-mix(in srgb,var(--destructive) 88%,#000)}
+/* confirmation alert dialog */
+.dialog-sm{width:440px;gap:20px}
+.dialog-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+@media(max-width:640px){.userinfo{flex-direction:column;gap:20px;align-items:center}.field-label{flex-basis:110px}}
+
+/* jobs dashboard (Run artifact) */
+.jobs{padding:22px 24px 30px;display:flex;flex-direction:column;gap:18px;min-height:100%}
+.jobs-title{margin:0;font-size:22px;font-weight:600}
+.jobs-sub{margin:4px 0 0;font-size:13.5px;color:var(--muted-foreground)}
+.jobs-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:900px){.jobs-cards{grid-template-columns:1fr}}
+.jcard{border:1px solid var(--border);border-radius:14px;background:var(--card);padding:18px 20px;
+  display:flex;flex-direction:column;gap:12px;animation:cardIn .5s cubic-bezier(.2,0,0,1) both}
+.jcard:nth-child(2){animation-delay:.08s}
+.jcard-title{font-size:15px;font-weight:600}
+.jcard-sub{font-size:12.5px;color:var(--muted-foreground);margin-top:-8px}
+.jcard-chart{flex:1;display:flex;align-items:center;justify-content:center;min-height:210px}
+.jcard-foot{font-size:13px;color:var(--foreground)}
+.jcard-foot .muted{color:var(--muted-foreground)}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.donut{transform-origin:center;animation:donutIn .5s cubic-bezier(.2,0,0,1) both}
+@keyframes donutIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+.donut-slice{animation:sliceIn .55s ease both;transition:opacity .15s}
+.donut-slice:hover{opacity:.82}
+@keyframes sliceIn{from{opacity:0}to{opacity:1}}
+.donut-label{fill:var(--muted-foreground);font-size:12px;font-family:'JetBrains Mono',monospace}
+.bar{fill:#2bb6bf;transform-box:fill-box;transform-origin:bottom;animation:barGrow .6s cubic-bezier(.2,0,0,1) both;transition:fill .15s}
+.bar:hover{fill:#5be0e6}
+@keyframes barGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.bar-grid{stroke:var(--border);stroke-width:1}
+.bar-x{fill:var(--muted-foreground);font-size:12px}
+/* line chart (execution results) */
+.jchart{display:flex;flex-direction:column;gap:12px;padding:2px}
+.jchart-plot{width:100%}
+.jchart-cap-title{margin:4px 0 2px;font-size:14px;font-weight:600;color:var(--foreground)}
+.jchart-cap{margin:0;font-size:13px;line-height:1.5;color:var(--muted-foreground);max-width:760px}
+.line-path{fill:none;stroke:#2ec9d6;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1 1;stroke-dashoffset:1;animation:lineDraw 1.1s cubic-bezier(.2,0,0,1) .1s forwards}
+@keyframes lineDraw{to{stroke-dashoffset:0}}
+.line-dot{fill:var(--canvas);stroke:#2ec9d6;stroke-width:2.5;opacity:0;animation:dotIn .3s ease forwards;transition:stroke .15s}
+.line-dot:hover{stroke:#5be0e6}
+@keyframes dotIn{to{opacity:1}}
+/* combined results report */
+.results{display:flex;flex-direction:column;gap:20px;padding:20px 22px 28px;min-height:100%}
+.res-section{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--card);
+  animation:cardIn .5s cubic-bezier(.2,0,0,1) both}
+.res-section:nth-child(2){animation-delay:.07s}
+.res-section:nth-child(3){animation-delay:.14s}
+.res-head{display:flex;align-items:center;gap:9px;padding:11px 15px;border-bottom:1px solid var(--border);
+  background:var(--secondary);color:var(--muted-foreground)}
+.res-head>svg{flex:0 0 auto}
+.res-title{font-size:14px;font-weight:600;color:var(--foreground)}
+.res-sub{font-size:12.5px;color:var(--muted-foreground)}
+.res-body{position:relative}
+.res-code{max-height:360px;overflow:auto}
+.res-head .grow{flex:1}
+/* results histogram */
+/* report artifact — rendered as an isolated HTML document */
+.report-frame{display:block;width:100%;height:100%;min-height:100%;border:0;background:var(--canvas)}
+.hist-wrap{padding:14px 16px;box-sizing:border-box;min-height:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:center}
+.hist-wrap>svg{flex:0 0 auto}
+.hist-bar{fill:#2bb6bf;transform-box:fill-box;transform-origin:bottom;animation:barGrow .5s cubic-bezier(.2,0,0,1) both;transition:fill .12s}
+.hist-bar:hover{fill:#5be0e6}
+.hist-y{fill:var(--muted-foreground);font-size:11px}
+.hist-x{fill:var(--muted-foreground);font-size:10px;font-family:'JetBrains Mono',monospace}
+/* ===== "5 results" artifact ===== */
+/* charts */
+.chart-wrap{padding:14px 16px 8px;box-sizing:border-box;position:relative;display:flex;flex-direction:column;align-items:stretch;min-width:0}
+.chart-wrap>svg{flex:0 0 auto;max-width:100%}
+.chart-plot{position:relative;width:100%;min-width:0}
+.chart-plot>svg{display:block;max-width:100%}
+.chart-wrap.fill{flex:1 1 auto;min-height:0;padding-bottom:6px}
+.chart-wrap.fill .chart-plot{flex:1 1 auto;min-height:0}
+.chart-wrap.scroll-x .chart-plot{overflow-x:auto}
+.chart-wrap.scroll-x .chart-plot>svg{max-width:none}
+.chart-ylab{font-size:11.5px;color:var(--muted-foreground);margin:0 0 6px 2px}
+.chart-xlab{font-size:11.5px;color:var(--muted-foreground);text-align:center;margin-top:2px}
+.hist-x2{fill:var(--muted-foreground);font-size:11px;font-family:'JetBrains Mono',monospace}
+.hist-x3{fill:var(--muted-foreground);font-size:9.5px;font-family:'JetBrains Mono',monospace}
+.area-fill{fill:#2ec9d6;opacity:.12}
+.zero-line{stroke:var(--border-strong);stroke-width:1;stroke-dasharray:3 3}
+.sv-bar{transform-box:fill-box;transform-origin:bottom;animation:barGrow .5s cubic-bezier(.2,0,0,1) both;transition:opacity .12s}
+.sv-bar:hover{opacity:.82}
+.sv-chart-row{display:flex;align-items:flex-start;gap:8px;min-width:0}
+.sv-chart-row .chart-wrap{flex:1 1 auto;min-width:0}
+.phase-wheel{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 10px 4px 2px}
+.pw-tick{fill:var(--muted-foreground);font-size:9px;font-family:'JetBrains Mono',monospace}
+.pw-cap{font-size:10.5px;color:var(--muted-foreground)}
+/* scalar hero */
+.scalar-hero{padding:34px 22px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.scalar-hero .sh-formula{font-size:14px;color:var(--muted-foreground);font-family:'JetBrains Mono',monospace}
+.scalar-hero .sh-main{display:flex;align-items:baseline;gap:10px}
+.scalar-hero .sh-big{font-size:56px;line-height:1;font-weight:600;letter-spacing:-.02em;color:#5be0e6;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace}
+.scalar-hero .sh-pm{font-size:18px;color:var(--muted-foreground);font-family:'JetBrains Mono',monospace}
+.scalar-hero .sh-stats{display:flex;gap:36px;margin-top:14px}
+.scalar-hero .sh-stat{display:flex;flex-direction:column;gap:3px}
+.scalar-hero .sh-stat-l{font-size:11.5px;color:var(--muted-foreground)}
+.scalar-hero .sh-stat-v{font-size:15px;font-weight:600;color:var(--foreground)}
+/* stat cards */
+.stat-grid{display:grid;gap:10px}
+.stat-card{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.stat-card-l{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
+.stat-card-v{font-size:26px;font-weight:600;letter-spacing:-.01em;color:var(--foreground);font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis}
+.stat-card-v.tone-accent{color:#5be0e6}
+/* data table */
+.dtable-wrap{display:flex;flex-direction:column;gap:8px}
+.dtable-bar{display:flex;align-items:center;gap:8px;padding:0 2px}
+.dtable-bar .grow{flex:1}
+.dtable-count{font-size:12px;color:var(--muted-foreground);font-variant-numeric:tabular-nums}
+.dtable-pager{display:inline-flex;gap:2px}
+.dtable-scroll{overflow-x:hidden;border:1px solid var(--border);border-radius:12px}
+.dtable{width:100%;table-layout:auto;border-collapse:separate;border-spacing:0;font-size:13px}
+.dtable th{text-align:left;background:var(--secondary);color:var(--muted-foreground);font-weight:500;font-size:12.5px;
+  padding:9px 14px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
+.dtable th:hover{color:var(--foreground)}
+.dtable .th-in{display:inline-flex;align-items:center;gap:5px}
+.dtable td{padding:8px 14px;border-bottom:1px solid var(--border);color:var(--foreground);white-space:normal;overflow-wrap:anywhere}
+.dtable td.num,.dtable td.mono{white-space:nowrap}
+.dtable tbody tr:last-child td{border-bottom:0}
+.dtable td.mono,.dtable th.mono{font-family:'JetBrains Mono',monospace}
+.dtable td.num,.dtable th.num{text-align:right;font-variant-numeric:tabular-nums}
+.dtable tbody tr{transition:background .1s}
+.dtable tbody tr:hover{background:var(--accent)}
+.dtable .sort-ind{color:var(--muted-foreground)}
+.dtable td.cell-pos{color:#7ee2a8}
+.dtable td.cell-neg{color:#ff8f8f}
+.light .dtable td.cell-pos{color:#15803d}
+.light .dtable td.cell-neg{color:#dc2626}
+/* full-page result shell */
+.r5-main{padding:20px 24px 44px;display:flex;flex-direction:column;gap:28px}
+/* page header group: kicker → status */
+.rf-header{display:flex;flex-direction:column;gap:6px}
+.rf-eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-foreground)}
+.rf-running{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted-foreground)}
+.rf-running::before{content:"";width:7px;height:7px;border-radius:50%;background:#22c55e;flex:0 0 auto}
+/* section = a clear H2: sentence case, foreground, larger + heavier than the labels below it */
+.rf-section{display:flex;flex-direction:column;gap:12px}
+.rf-title{font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--foreground);margin-left:16px}
+.rf-card{border:0;border-radius:0;background:transparent;padding:8px}
+/* results-pane picker (compact Select) */
+.res-picker{min-width:0;max-width:240px}
+.res-picker .field-select{position:relative}
+.res-picker .select{height:28px;padding:0 30px 0 10px;font-size:12.5px;border-radius:7px}
+/* dropdown grows leftward from the right edge so it never overflows the pane, and never wraps */
+.res-picker .sel-menu{left:auto;right:0;width:max-content;min-width:100%;max-width:360px}
+.res-picker .sel-opt{white-space:nowrap}
+/* glimpse in split pane */
+.glimpse{height:100%;min-height:0;padding:4px 6px;display:flex;flex-direction:column;box-sizing:border-box}
+.glimpse>.chart-wrap{flex:1 1 auto;min-height:0}
+.glimpse>.sv-chart-row{flex:1 1 auto;min-height:0}
+.sv-chart-row.sv-fill{align-items:stretch}
+.sv-chart-row.sv-fill .chart-wrap{min-height:0}
+.glimpse.glimpse-center{align-items:center;justify-content:center}
+/* mosaic workspace */
+.mosaic{height:100%;min-height:0;display:flex;flex-direction:column}
+.mosaic-area{flex:1;min-height:0;position:relative}
+/* layout action sheet */
+.lay-menu{min-width:236px}
+.lay-item{display:flex;align-items:center;gap:11px}
+.lay-item-ic{display:inline-flex;flex:0 0 auto;color:var(--muted-foreground)}
+.lay-item.active .lay-item-ic{color:var(--foreground)}
+.lay-item-name{flex:1;font-size:13.5px}
+.lay-item.active{background:var(--accent)}
+.lay-item-check{display:inline-flex;color:var(--foreground)}
+.msplit{display:flex;width:100%;height:100%;min-width:0;min-height:0}
+.msplit.row{flex-direction:row}
+.msplit.col{flex-direction:column}
+.msplit.rzing *{pointer-events:none}
+.mpane-wrap{display:flex;min-width:0;min-height:0;overflow:hidden}
+.mpane-wrap>*{flex:1 1 0;min-width:0;min-height:0}
+.msplit.rzing .vresizer::before,.msplit.rzing .hresizer::before{background:var(--primary)}
+.hresizer{flex:0 0 auto;width:10px;margin:0 -5px;position:relative;z-index:20;cursor:col-resize;
+  display:flex;align-items:center;justify-content:center;background:transparent}
+.hresizer::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--border);transition:background .12s}
+.hresizer:hover::before,.hresizer:focus-visible::before{background:var(--primary)}
+.hresizer .vgrip2{width:6px;height:34px;border-radius:9999px;background:var(--border-strong);opacity:0;transition:opacity .12s}
+.hresizer:hover .vgrip2,.hresizer:focus-visible .vgrip2{opacity:1}
+.hresizer:focus-visible{outline:none}
+/* fullscreen container overlay */
+.fs-overlay{position:fixed;inset:0;z-index:95;display:flex;flex-direction:column;background:var(--canvas);
+  animation:scrimIn .16s ease both}
+.fs-head{flex:0 0 auto;display:flex;align-items:center;gap:8px;height:52px;padding:0 12px 0 16px;
+  border-bottom:1px solid var(--border);background:var(--background)}
+.fs-head .grow{flex:1}
+.fs-head .btn.active{background:var(--accent);color:var(--foreground)}
+.fs-title{font-size:14px;font-weight:600;color:var(--foreground)}
+/* two-line header (result full pages): bold title + status subtitle */
+.fs-head-block{display:flex;flex-direction:column;gap:2px;line-height:1.15}
+.fs-head-title2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--foreground)}
+.fs-head-sub{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted-foreground)}
+.fs-head-sub::before{content:"";width:6px;height:6px;border-radius:50%;background:#22c55e;flex:0 0 auto}
+.fs-body{flex:1;min-height:0;display:flex;overflow:hidden}
+.fs-stage{flex:1;min-width:0;overflow:auto;position:relative}
+.fs-scale{will-change:transform}
+/* fullscreen circuit — collapsible details side panel */
+.fs-info{flex:0 0 340px;width:340px;min-height:0;overflow:hidden;display:flex;flex-direction:column;
+  background:var(--popover);border-left:1px solid var(--border);animation:msgIn .16s cubic-bezier(.2,0,0,1) both}
+.ip-head{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:12px 10px 11px 16px;border-bottom:1px solid var(--border)}
+.ip-head .ip-title{flex:1;font-size:14px;font-weight:600;color:var(--foreground)}
+.ip-collapse{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:0;
+  background:transparent;color:var(--muted-foreground);cursor:pointer;transition:background .12s,color .12s}
+.ip-collapse:hover{background:var(--accent);color:var(--foreground)}
+.ip-tabs{flex:0 0 auto;display:flex;border-bottom:1px solid var(--border)}
+.ip-tab{flex:1;height:40px;border:0;background:transparent;color:var(--muted-foreground);font:inherit;font-size:13.5px;
+  cursor:pointer;border-bottom:2px solid transparent;transition:color .12s,border-color .12s,background .12s}
+.ip-tab:hover{color:var(--foreground)}
+.ip-tab.active{color:var(--foreground);border-bottom-color:var(--primary);background:var(--accent)}
+.ip-body{flex:1;min-height:0;overflow-y:auto;padding:16px;font-size:13.5px;line-height:1.5}
+.ip-row{margin:0 0 6px}
+.ip-k{color:var(--muted-foreground)}
+.ip-v{color:var(--foreground)}
+.ip-h{font-size:15px;font-weight:600;color:var(--foreground);margin:20px 0 9px}
+.ip-h:first-child{margin-top:0}
+.ip-gate{margin:0 0 5px}
+.ip-gk{color:var(--muted-foreground)}
+.ip-gv{color:var(--foreground)}
+.ip-kv{margin:0 0 7px}
+.ip-mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--foreground);word-break:break-all}
+/* collapsed state — a slim rail that re-opens the panel */
+.fs-info-rail{flex:0 0 auto;width:42px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;
+  background:var(--popover);border:0;border-left:1px solid var(--border);color:var(--muted-foreground);cursor:pointer;
+  transition:color .12s,background .12s;animation:msgIn .16s cubic-bezier(.2,0,0,1) both}
+.fs-info-rail:hover{color:var(--foreground);background:var(--accent)}
+.fs-info-rail .rail-label{writing-mode:vertical-rl;transform:rotate(180deg);font-size:12.5px;font-weight:500;
+  letter-spacing:.01em;margin-top:2px}
+/* floating action panel in fullscreen */
+.fs-toolbar{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:5px;
+  padding:6px;border-radius:12px;background:var(--popover);border:1px solid var(--border);box-shadow:0 12px 32px rgba(0,0,0,.45)}
+.fs-tb-btn,.fs-tb-icon,.fs-tb-sep,.fs-tb-pct{flex:0 0 auto}
+.light .fs-toolbar{box-shadow:0 12px 32px rgba(15,23,42,.16)}
+.fs-tb-btn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:8px;border:0;background:transparent;
+  color:var(--foreground);font:inherit;font-size:13.5px;cursor:pointer;transition:background .12s}
+.fs-tb-btn:hover,.fs-tb-btn.active{background:var(--accent)}
+.fs-tb-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:0;
+  background:transparent;color:var(--muted-foreground);cursor:pointer;transition:background .12s,color .12s}
+.fs-tb-icon:hover,.fs-tb-icon.active{background:var(--accent);color:var(--foreground)}
+.fs-tb-pct{min-width:40px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--muted-foreground)}
+.fs-tb-sep{width:1px;height:22px;background:var(--border);margin:0 3px}
+/* toggle switch (Variables View) */
+.fs-tb-toggle{display:inline-flex;align-items:center;gap:9px;height:34px;padding:0 12px 0 10px;border-radius:8px;border:0;
+  background:transparent;color:var(--foreground);font:inherit;font-size:13.5px;cursor:pointer;transition:background .12s}
+.fs-tb-toggle:hover{background:var(--accent)}
+.fs-sw{position:relative;flex:0 0 auto;width:34px;height:20px;border-radius:999px;background:var(--border-strong);
+  transition:background .16s ease}
+.fs-sw.on{background:var(--primary)}
+.fs-sw-knob{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.35);transition:transform .16s cubic-bezier(.2,0,0,1)}
+.fs-sw.on .fs-sw-knob{transform:translateX(14px)}
+/* fullscreen results — jobs history + histogram */
+.rfull{display:flex;height:100%;min-height:0}
+.jobs-hist{flex:0 0 320px;display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--border);overflow:hidden}
+.jh-head{flex:0 0 auto;padding:11px 16px 9px;font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--foreground)}
+.jh-list{flex:1;min-height:0;overflow-y:auto;padding:4px 0}
+.jh-item{display:flex;align-items:center;gap:8px;width:100%;height:34px;padding:0 12px;border:0;background:transparent;
+  color:var(--foreground);font:inherit;font-size:13.5px;cursor:pointer;text-align:left}
+.jh-item:hover,.jh-item.active{background:var(--accent)}
+.jh-item>svg:first-child{color:var(--muted-foreground);flex:0 0 auto}
+.jh-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jh-date{font-size:12px;color:var(--muted-foreground);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.jh-acts{display:inline-flex;gap:8px;flex:0 0 auto}
+.jh-act{display:inline-flex;color:var(--muted-foreground);cursor:pointer}
+.jh-act:hover{color:var(--foreground)}
+.jh-st{width:18px;height:18px;border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto}
+.jh-st.done{background:#22c55e}
+.jh-st.error{background:#ef4444}
+.jh-st.pending{background:#f59e0b}
+.jh-detail{padding:10px 16px 14px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.jh-dl{font-size:12px;line-height:1.4}
+.jh-dk{color:var(--muted-foreground)}
+.jh-dv{color:var(--foreground)}
+.jh-dv.link{text-decoration:underline;cursor:pointer}
+.jh-dv.ok{color:#7ee2a8}
+.light .jh-dv.ok{color:#15803d}
+.rfull-main{flex:1;min-width:0;min-height:0;overflow:auto;padding:8px}
+
+/* synthesize split button */
+.split-btn{display:inline-flex;align-items:stretch;height:30px;flex:0 0 auto;border-radius:8px;overflow:hidden;background:var(--primary)}
+.split-btn button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--primary-foreground);
+  font:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:background .12s}
+.split-btn .sb-main{padding:0 12px}
+.split-btn .sb-chev{padding:0 7px}
+.split-btn button:hover{background:color-mix(in srgb,var(--primary) 88%,#000)}
+.split-btn .sb-sep{width:1px;flex:0 0 auto;background:color-mix(in srgb,var(--primary-foreground) 28%,transparent)}
+
+/* right synthesis drawer (Sheet not in kit — recomposed) */
+.drawer-scrim{position:fixed;inset:0;z-index:96;display:flex;justify-content:flex-end;background:rgba(15,15,17,.5);animation:scrimIn .16s ease both}
+.light .drawer-scrim{background:rgba(38,38,38,.28)}
+.drawer{width:min(400px,92vw);height:100%;display:flex;flex-direction:column;background:var(--background);
+  border-left:1px solid var(--border);box-shadow:-16px 0 40px rgba(0,0,0,.3);animation:drawerIn .24s cubic-bezier(.2,0,0,1) both}
+.light .drawer{box-shadow:-16px 0 40px rgba(15,23,42,.12)}
+@keyframes drawerIn{from{transform:translateX(100%)}to{transform:none}}
+@keyframes drawerOut{from{transform:none}to{transform:translateX(100%)}}
+@keyframes scrimOut{from{opacity:1}to{opacity:0}}
+.drawer-scrim.closing{animation:scrimOut .2s ease both}
+.drawer.closing{animation:drawerOut .24s cubic-bezier(.2,0,0,1) both}
+.drawer-head{flex:0 0 auto;display:flex;align-items:center;gap:8px;height:52px;padding:0 10px 0 18px;border-bottom:1px solid var(--border)}
+.drawer-title{flex:1;font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-foreground)}
+.drawer-body{flex:1;min-height:0;overflow-y:auto;padding:4px 18px 20px}
+.drawer-foot{flex:0 0 auto;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 18px;border-top:1px solid var(--border)}
+.drawer-group{padding:6px 0}
+.drawer-group-head{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:0;color:var(--foreground);
+  font:inherit;font-size:15px;font-weight:600;padding:10px 0;cursor:pointer;text-align:left}
+.drawer-group-head .gh-ic{display:inline-flex;color:var(--muted-foreground);transition:transform .16s ease}
+.drawer-fields{display:flex;flex-direction:column;gap:16px;padding:4px 0 6px}
+.field-v{display:flex;flex-direction:column;gap:7px}
+.field-v>label{font-size:13px;color:var(--muted-foreground)}
+.field-v .input{width:100%}
+.field-select{position:relative}
+.select{display:flex;align-items:center;text-align:left;width:100%;height:36px;padding:0 34px 0 12px;border-radius:8px;
+  border:1px solid var(--input);background:var(--background);color:var(--foreground);font:inherit;font-size:14px;cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,.06);outline:none;transition:border-color .12s,box-shadow .12s}
+.select:hover{border-color:var(--border-strong)}
+.select.open,.select:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--ring) 25%,transparent)}
+.sel-val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sel-val.ph{color:var(--muted-foreground)}
+.sel-chev{position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted-foreground);display:inline-flex}
+.sel-menu{position:absolute;top:calc(100% + 6px);left:0;width:100%;z-index:80;max-height:240px;overflow-y:auto;
+  background:var(--popover);color:var(--popover-foreground);border:1px solid var(--border);border-radius:10px;padding:6px;
+  box-shadow:0 12px 32px rgba(0,0,0,.45);animation:msgIn .14s cubic-bezier(.2,0,0,1) both}
+.light .sel-menu{box-shadow:0 12px 32px rgba(15,23,42,.16)}
+.sel-opt{display:flex;align-items:center;gap:8px;width:100%;min-height:34px;padding:6px 8px;border:0;border-radius:7px;
+  background:transparent;color:var(--foreground);font:inherit;font-size:14px;cursor:pointer;text-align:left}
+.sel-opt:hover,.sel-opt.active{background:var(--accent)}
+.sel-opt-check{width:16px;flex:0 0 auto;display:inline-flex;color:var(--foreground)}
+/* execution drawer + qmod flow */
+.chk-group{display:flex;flex-direction:column;gap:11px}
+.chk-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--foreground);cursor:pointer}
+.drawer-group-title{font-size:15px;font-weight:600;padding:8px 0 2px}
+.exec-summary{border:1px solid var(--border);border-radius:10px;background:var(--card);padding:12px 14px}
+.es-title{font-size:13.5px;font-weight:500}
+.es-sub{font-size:12.5px;color:var(--muted-foreground);margin-top:4px}
+.split-btn.disabled{opacity:.5;pointer-events:none}
+/* secondary state — de-emphasised once the primary action moves downstream */
+.split-btn.secondary{background:var(--secondary);border:1px solid var(--border)}
+.split-btn.secondary button{color:var(--secondary-foreground)}
+.split-btn.secondary button:hover{background:var(--accent)}
+.split-btn.secondary .sb-sep{background:color-mix(in srgb,var(--secondary-foreground) 20%,transparent)}
+.qflow-area{height:100%;display:flex;min-height:0}
+.qflow-area>*{flex:1 1 0;min-width:0;min-height:0}
+.qflow-loader{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;gap:12px;
+  background:color-mix(in srgb,var(--canvas) 72%,transparent);backdrop-filter:blur(1px);font-size:14px;color:var(--foreground)}
+/* toast (shadcn-style, bottom-left, success green) */
+.toast{position:fixed;left:20px;bottom:20px;z-index:100;display:flex;align-items:flex-start;gap:10px;width:340px;max-width:calc(100vw - 40px);
+  padding:12px 12px 12px 14px;border-radius:12px;background:var(--popover);color:var(--popover-foreground);
+  border:1px solid color-mix(in srgb,#22c55e 45%,var(--border));border-left:3px solid #22c55e;
+  box-shadow:0 12px 32px rgba(0,0,0,.4);animation:toastIn .22s cubic-bezier(.2,0,0,1) both}
+.light .toast{box-shadow:0 12px 32px rgba(15,23,42,.16)}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.toast-ic{display:inline-flex;flex:0 0 auto;color:#22c55e;margin-top:1px}
+.toast-body{flex:1;min-width:0}
+.toast-title{font-size:14px;font-weight:600}
+.toast-desc{font-size:13px;color:var(--muted-foreground);margin-top:2px;line-height:1.4}
+.toast-x{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:0;border-radius:6px;
+  background:transparent;color:var(--muted-foreground);cursor:pointer;transition:background .12s,color .12s}
+.toast-x:hover{background:var(--accent);color:var(--foreground)}
+.jobs-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.jobs-toolbar .grow{flex:1}
+.seg{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:var(--secondary);border:1px solid var(--border)}
+.seg-btn{height:28px;padding:0 12px;border-radius:8px;border:0;background:transparent;color:var(--muted-foreground);
+  font:inherit;font-size:13px;cursor:pointer;transition:background .12s,color .12s}
+.seg-btn:hover{color:var(--foreground)}
+.seg-btn.active{background:var(--background);color:var(--foreground);box-shadow:0 1px 2px rgba(0,0,0,.14)}
+.jtable{border:1px solid var(--border);border-radius:12px;overflow:hidden;animation:cardIn .5s cubic-bezier(.2,0,0,1) both;animation-delay:.12s}
+.jrow{display:grid;grid-template-columns:minmax(0,1fr) 150px 96px 130px 52px 52px 40px;align-items:center;gap:8px;
+  padding:0 12px;height:52px;border-bottom:1px solid var(--border);font-size:13.5px}
+.jrow:last-child{border-bottom:0}
+.jrow.head{height:44px;background:var(--secondary);color:var(--muted-foreground);font-size:12.5px;font-weight:500}
+.jrow.body{animation:rowIn .5s ease both}
+.jrow.body:hover{background:var(--accent)}
+.jname{display:flex;align-items:center;gap:10px;min-width:0}
+.jname .jn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:13px}
+.jgrip{color:var(--muted-foreground);display:flex;flex:0 0 auto;opacity:.55;cursor:grab}
+.jcheck{width:16px;height:16px;accent-color:var(--primary);cursor:pointer;flex:0 0 auto}
+.jcell-mono{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--muted-foreground)}
+@keyframes rowIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.badge-run{background:color-mix(in srgb,#5be0e6 18%,transparent);color:#7fe3dd;border-color:color-mix(in srgb,#5be0e6 30%,transparent)}
+.light .badge-run{color:#0e7490}
+/* light mode: swap the heavy dark drop-shadows on floating surfaces for soft light ones */
+.light .tt>.tt-body{box-shadow:0 6px 20px rgba(15,23,42,.12)}
+.light .menu{box-shadow:0 10px 30px rgba(15,23,42,.14)}
+.light .switcher-pop{box-shadow:0 12px 32px rgba(15,23,42,.14)}
+.canvas-body{flex:1;min-height:0;overflow:auto;position:relative}
+.code{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.62;min-height:100%;padding:14px 0}
+.codeline{display:flex;align-items:flex-start}
+.cl-num{flex:0 0 auto;width:54px;padding-right:16px;text-align:right;user-select:none;
+  color:color-mix(in srgb,var(--muted-foreground) 70%,transparent)}
+.cl-txt{flex:1 1 auto;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-scroll,.codelines{padding-right:16px}
+.tok-kw{color:#c586e0}.tok-str{color:#e6c07b}.tok-com{color:#6a7a55}.tok-num{color:#7fd6ff}.tok-fn{color:#7fd6ff}
+.light .tok-kw{color:#a626a4}.light .tok-str{color:#b8860b}.light .tok-com{color:#5a8f3c}.light .tok-num{color:#0184bc}.light .tok-fn{color:#0184bc}
+
+/* circuit — Classiq QP visualization (exported raster) */
+.circuit-scroll{padding:26px;min-height:100%;display:flex;align-items:center;justify-content:center}
+.qp-frame{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#0d0d0f;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);max-width:100%}
+.light .qp-frame{border-color:var(--border-strong);background:#e4e4e4;box-shadow:0 4px 18px rgba(0,0,0,.08)}
+.qp-img{display:block;width:100%;height:auto;max-width:1368px}
+.qp-collapsed{width:100%;max-width:1368px;padding:22px 26px;background:#0d0d0f}
+.light .qp-collapsed{background:#e9e9ea}
+.qp-collapsed svg{display:block;width:100%;height:auto}
+/* swap the raster by theme (light variant recolored from the export) */
+.qp-img.qp-light{display:none}
+.light .qp-img.qp-dark{display:none}
+.light .qp-img.qp-light{display:block}
+
+/* vertical split canvas — code above, visualization below (adjustable) */
+.canvas-vsplit{flex:1;min-height:0;display:flex;flex-direction:column}
+.canvas-body>.canvas-vsplit{height:100%}
+.canvas-vsplit.resizing{cursor:row-resize;user-select:none}
+.canvas-vsplit.resizing *{pointer-events:none}
+.vpane{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.vpane-head{flex:0 0 auto;display:flex;align-items:center;gap:8px;height:38px;padding:0 8px 0 12px;
+  border-bottom:1px solid var(--border);color:var(--muted-foreground);font-size:12.5px}
+.vpane-head .grow{flex:1}
+.vpane-head>svg:first-child{color:var(--muted-foreground);flex:0 0 auto}
+.vpane-head .vpane-label{color:var(--foreground);font-weight:500}
+.vpane-body{flex:1;min-height:0;overflow:auto;position:relative}
+.vpane-body .circuit-scroll{padding:18px}
+.vresizer{flex:0 0 auto;height:10px;margin:-5px 0;position:relative;z-index:20;cursor:row-resize;
+  display:flex;align-items:center;justify-content:center;background:transparent}
+.vresizer::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--border);transition:background .12s}
+.vresizer:hover::before,.vresizer:focus-visible::before,.canvas-vsplit.resizing .vresizer::before{background:var(--primary)}
+.vresizer .vgrip{width:34px;height:6px;border-radius:9999px;background:var(--border-strong);opacity:0;transition:opacity .12s;z-index:1}
+.vresizer:hover .vgrip,.vresizer:focus-visible .vgrip{opacity:1}
+.vresizer:focus-visible{outline:none}
+
+/* empty */
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px;text-align:center}
+.empty .em-media{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:var(--secondary);color:var(--muted-foreground)}
+.empty .em-title{font-size:15px;font-weight:600}
+.empty .em-desc{font-size:13px;color:var(--muted-foreground);max-width:280px}
+
+/* quick-reply chips inside a chat message */
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+/* problem-framing chat */
+.frame-step{font-size:12px;color:var(--muted-foreground);letter-spacing:.02em}
+.frame-hint{font-size:12px;color:var(--muted-foreground);margin:10px 0 0}
+.frame-recap{border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:hidden}
+.frame-recap .recap-row{display:flex;gap:12px;padding:9px 12px;font-size:13.5px}
+.frame-recap .recap-row+.recap-row{border-top:1px solid var(--border)}
+.frame-recap .recap-k{flex:0 0 92px;color:var(--muted-foreground)}
+.frame-recap .recap-v{flex:1;color:var(--foreground);font-weight:500}
+/* action item card (e.g. Synthesize) */
+.action-card{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:12px;
+  border:1px solid var(--border);background:var(--card)}
+.action-card .item-media{flex:0 0 auto}
+.action-card .item-content{flex:1;min-width:0}
+.action-card .btn{flex:0 0 auto}
+/* suggestion chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+/* start option cards (empty state) */
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%;max-width:860px;margin-top:4px}
+.option-card{display:flex;align-items:flex-start;gap:12px;text-align:left;padding:16px;border-radius:14px;
+  border:1px solid var(--border);background:var(--card);color:var(--foreground);cursor:pointer;
+  transition:border-color .14s,background .14s,transform .14s,box-shadow .14s}
+.option-card:hover{background:var(--accent);border-color:var(--border-strong);transform:translateY(-1px)}
+.option-card.primary{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary)}
+.option-card.parked{border-style:dashed;background:transparent;opacity:.55;cursor:default}
+.option-card.parked:hover{background:transparent;border-color:var(--border);transform:none}
+.oc-icon{flex:0 0 auto;display:flex;color:var(--muted-foreground);margin-top:1px}
+.option-card.primary .oc-icon{color:var(--primary)}
+.oc-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.oc-title{font-size:15px;font-weight:600;line-height:1.2}
+.oc-sub{font-size:13px;color:var(--muted-foreground);line-height:1.3}
+.chip{padding:8px 14px;border-radius:9999px;border:1px solid var(--border);background:var(--card);
+  font-size:13px;color:var(--foreground);cursor:pointer;transition:background .12s,border-color .12s}
+.chip:hover{background:var(--accent);border-color:var(--border-strong)}
+
+.scrim{position:fixed;inset:0;z-index:65}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  .composer.grad.on::before{opacity:1;animation:none}
+}
+@media (max-width:820px){ .sidebar{position:absolute;z-index:80;height:100%} .canvas{display:none} }
+</style>
+</head>
+<body class="dark">
+<div id="root"></div>
+
+<script type="text/plain" id="app-src">
+const { useState, useRef, useEffect, useCallback } = React;
+
+/* ---------------- Lucide-style icons ---------------- */
+const I = (p, ...paths) => (pr={}) =>
+  React.createElement('svg',{width:pr.s||16,height:pr.s||16,viewBox:'0 0 24 24',fill:'none',
+    stroke:'currentColor',strokeWidth:pr.sw||2,strokeLinecap:'round',strokeLinejoin:'round',...pr},
+    paths.map((d,i)=>React.createElement('path',{key:i,d})));
+const IcPlus=I(0,'M5 12h14','M12 5v14');
+const IcArrowUp=I(0,'M12 19V5','M5 12l7-7 7 7');
+const IcArrowRight=I(0,'M5 12h14','M12 5l7 7-7 7');
+const IcPanel=I(0,'M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z','M9 3v18');
+const IcChevR=I(0,'M9 6l6 6-6 6');
+const IcChevL=I(0,'M15 6l-6 6 6 6');
+const IcList=I(0,'M8 6h13','M8 12h13','M8 18h13','M3 6h.01','M3 12h.01','M3 18h.01');
+const IcGrip=I(0,'M9 5h.01','M9 12h.01','M9 19h.01','M15 5h.01','M15 12h.01','M15 19h.01');
+const IcFile=I(0,'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z','M14 3v5h5');
+const IcOpen=I(0,'M15 3h6v6','M10 14 21 3','M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6');
+const IcTrash=I(0,'M3 6h18','M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2','M19 6l-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6','M10 11v6','M14 11v6');
+const IcMin=I(0,'M8 3v3a2 2 0 0 1-2 2H3','M21 8h-3a2 2 0 0 1-2-2V3','M3 16h3a2 2 0 0 1 2 2v3','M16 21v-3a2 2 0 0 1 2-2h3');
+const IcEdit=I(0,'M12 20h9','M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z');
+const IcClock=(pr={})=>SV(pr,[C(12,12,9),P('M12 8v4l3 1.6','clk')]);
+const IcChevD=I(0,'M6 9l6 6 6-6');
+const IcChevUD=I(0,'M7 15l5 5 5-5','M7 9l5-5 5 5');
+const IcCopy=I(0,'M15 3H5a2 2 0 0 0-2 2v10','M9 7h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z');
+const IcDownload=I(0,'M12 3v12','M7 10l5 5 5-5','M5 21h14');
+const IcMax=I(0,'M8 3H5a2 2 0 0 0-2 2v3','M21 8V5a2 2 0 0 0-2-2h-3','M3 16v3a2 2 0 0 0 2 2h3','M16 21h3a2 2 0 0 0 2-2v-3');
+const IcX=I(0,'M18 6L6 18','M6 6l12 12');
+const IcExt=I(0,'M15 3h6v6','M10 14L21 3','M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6');
+const IcMsgPlus=I(0,'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z','M9 10h6','M12 7v6');
+const IcBulb=I(0,'M9 18h6','M10 22h4','M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z');
+const IcCheck=I(0,'M20 6L9 17l-5-5');
+const IcCode=I(0,'M16 18l6-6-6-6','M8 6l-6 6 6 6');
+const IcChip=I(0,'M9 3v3','M15 3v3','M9 18v3','M15 18v3','M3 9h3','M3 15h3','M18 9h3','M18 15h3','M6 6h12v12H6z','M9 9h6v6H9z');
+const IcSearch=I(0,'M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16z','M21 21l-4.3-4.3');
+const IcZin=I(0,'M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16z','M21 21l-4.3-4.3','M11 8v6','M8 11h6');
+const IcZout=I(0,'M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16z','M21 21l-4.3-4.3','M8 11h6');
+const IcDots=I(0,'M5 12h.01','M12 12h.01','M19 12h.01');
+const IcSpark=I(0,'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z');
+const IcSun=I(0,'M12 3v2','M12 19v2','M5 5l1.5 1.5','M17.5 17.5L19 19','M3 12h2','M19 12h2','M5 19l1.5-1.5','M17.5 6.5L19 5','M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z');
+const IcMoon=I(0,'M21 12.8A8 8 0 1 1 11.2 3 6 6 0 0 0 21 12.8z');
+const IcRefresh=I(0,'M21 12a9 9 0 1 1-3-6.7','M21 3v5h-5');
+const IcMap=I(0,'M9 3L3 6v15l6-3 6 3 6-3V3l-6 3-6-3z','M9 3v15','M15 6v15');
+const IcFitW=I(0,'M5 4v16','M19 4v16','M8 12h8','M10 9l-3 3 3 3','M14 9l3 3-3 3');
+// icons that need circles/polygons (Lucide: target, compass, circle-play, graduation-cap)
+const SV=(pr,ch)=>React.createElement('svg',{width:pr.s||16,height:pr.s||16,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:pr.sw||2,strokeLinecap:'round',strokeLinejoin:'round'},ch);
+const C=(cx,cy,r)=>React.createElement('circle',{key:'c'+cx+cy+r,cx,cy,r});
+const P=(d,k)=>React.createElement('path',{key:k||d,d});
+const PG=(pts)=>React.createElement('polygon',{key:pts,points:pts});
+const IcTarget=(pr={})=>SV(pr,[C(12,12,10),C(12,12,6),C(12,12,2)]);
+const IcCompass=(pr={})=>SV(pr,[C(12,12,10),PG('16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76')]);
+const IcPlay=(pr={})=>SV(pr,[C(12,12,10),PG('10 8 16 12 10 16 10 8')]);
+const IcGrad=(pr={})=>SV(pr,[P('M22 10v6M2 10l10-5 10 5-10 5z','g1'),P('M6 12v5c3 3 9 3 12 0v-5','g2')]);
+const IcInfo=(pr={})=>SV(pr,[C(12,12,10),P('M12 16v-4','i1'),P('M12 8h.01','i2')]);
+const IcShare=(pr={})=>SV(pr,[C(18,5,3),C(6,12,3),C(18,19,3),P('M8.6 13.5l6.8 3.98','s1'),P('M15.4 6.5l-6.8 3.98','s2')]);
+// Exact Classiq logo, exported from Figma (node 634:30801) — full wordmark + mark-only rail variant
+const Logo=({mark})=>React.createElement('img',{src:mark?'./assets/classiq-mark.svg':'./assets/classiq-logo.svg',alt:'Classiq',draggable:false});
+
+/* ---------------- shadcn primitives ---------------- */
+const cx=(...a)=>a.filter(Boolean).join(' ');
+const Button=({variant='ghost',size,icon,className,children,...p})=>
+  React.createElement('button',{className:cx('btn','btn-'+variant,size&&'btn-'+size,icon&&'btn-icon',className),...p},children);
+const Badge=({variant='secondary',children})=>React.createElement('span',{className:cx('badge','badge-'+variant)},children);
+const Avatar=({children})=>React.createElement('div',{className:'avatar'},children);
+const Separator=({v})=>React.createElement('div',{className:cx('sep',v?'sep-v':'sep-h'),role:'separator'});
+const Spinner=({s})=>React.createElement('div',{className:'spinner',style:s?{width:s,height:s}:null,role:'status','aria-label':'Loading'});
+const Kbd=({children})=>React.createElement('kbd',{className:'kbd'},children);
+const Tooltip=({label,children})=>React.createElement('span',{className:'tt'},children,React.createElement('span',{className:'tt-body',role:'tooltip'},label));
+
+function DropdownMenu({trigger,children,align='left'}){
+  const [open,setOpen]=useState(false); const ref=useRef();
+  return React.createElement('div',{style:{position:'relative'},ref},
+    React.cloneElement(trigger,{onClick:()=>setOpen(o=>!o),'aria-expanded':open}),
+    open&&React.createElement(React.Fragment,null,
+      React.createElement('div',{className:'scrim',onClick:()=>setOpen(false)}),
+      React.createElement('div',{className:'menu',style:align==='left'?{left:0,bottom:'calc(100% + 8px)'}:{right:0,top:'calc(100% + 8px)'},
+        onClick:()=>setOpen(false)},children)));
+}
+
+/* ---------------- data ---------------- */
+const H2_CODE=[
+  ['from ','kw','classiq ','','import ','kw','*'],
+  ['import ','kw','numpy ','','as ','kw','np'],
+  [],
+  ['# H2 Hamiltonian in the STO-3g basis (Jordan-Wigner mapped)','com'],
+  ['# Real Pauli coefficients for H2 at ~0.735 Angstrom','com'],
+  [],
+  ['NUM_QUBITS = ','','4','num'],
+  ['NUM_LAYERS = ','','2','num'],
+  ['NUM_PARAMS = NUM_LAYERS * NUM_QUBITS   ','','# 8 parameters total','com'],
+  [],
+  ['# ---- Hardware-Efficient Ansatz (HEA) ----','com'],
+  ['@qfunc','fn'],
+  ['def ','kw','ansatz_layer(theta, q):'],
+  ['    repeat(NUM_QUBITS, ','','lambda ','kw','i: RY(theta[i], q[i]))'],
+  ['    repeat(NUM_QUBITS - ','','1','num',', ','','lambda ','kw','i: CX(q[i], q[i+1]))'],
+  [],
+  ['@qfunc','fn'],
+  ['def ','kw','main(params: CArray[CReal, NUM_PARAMS], q: Output[QArray]):'],
+  ['    allocate(NUM_QUBITS, q)'],
+  ['    repeat(NUM_LAYERS, ','','lambda ','kw','l: ansatz_layer('],
+  ['        params[l*NUM_QUBITS:(l+1)*NUM_QUBITS], q))'],
+];
+const POST_CODE=[
+  ['import ','kw','matplotlib.pyplot ','','as ','kw','plt'],
+  [],
+  ['# res: list[tuple[float, dict]] returned by minimize()','com'],
+  ['def ','kw','plot_vqe_convergence(res):'],
+  ['    costs = [r[','','0','num','] ','','for ','kw','r ','','in ','kw','res]'],
+  ['    final_energy = costs[-','','1','num',']'],
+  ['    lih_exact = -','','7.882','num','   ','','# reference LiH ground state (Ha)','com'],
+  ['    plt.plot(costs, ','','label','','=','','"VQE energy"','str',')'],
+  ['    plt.axhline(lih_exact, ','','ls','','=','','"--"','str',', ','','color','','=','','"red"','str',')'],
+  ['    plt.xlabel(','','"Optimizer iteration"','str','); plt.ylabel(','','"Energy (Ha)"','str',')'],
+  ['    plt.legend(); plt.show()'],
+];
+// Qmod generated by the guided flow (portfolio optimization -> QAOA)
+const QMOD_PORTFOLIO=[
+  ['from ','kw','classiq ','','import ','kw','*'],
+  [],
+  ['# Portfolio optimization -> QAOA','com'],
+  ['# Select up to 6 of 12 assets, minimize risk - return under budget','com'],
+  ['NUM_ASSETS = ','','12','num'],
+  ['NUM_LAYERS = ','','3','num','    ','','# QAOA depth p','com'],
+  [],
+  ['@qfunc','fn'],
+  ['def ','kw','mixer_layer(beta: CReal, q: QArray[QBit]):'],
+  ['    apply_to_all(','','lambda ','kw','t: RX(beta, t), q)'],
+  [],
+  ['@qfunc','fn'],
+  ['def ','kw','cost_layer(gamma: CReal, q: QArray[QBit]):'],
+  ['    repeat(NUM_ASSETS, ','','lambda ','kw','i: RZ(gamma * returns[i], q[i]))'],
+  ['    # pairwise risk terms from the covariance matrix','com'],
+  ['    repeat(NUM_ASSETS, ','','lambda ','kw','i: risk_couplings(gamma, i, q))'],
+  [],
+  ['@qfunc','fn'],
+  ['def ','kw','main(params: CArray[CReal, ','','2','num',' * NUM_LAYERS], q: Output[QArray[QBit]]):'],
+  ['    allocate(NUM_ASSETS, q)'],
+  ['    hadamard_transform(q)'],
+  ['    repeat(NUM_LAYERS, ','','lambda ','kw','i: ['],
+  ['        cost_layer(params[i], q),'],
+  ['        mixer_layer(params[NUM_LAYERS + i], q),'],
+  ['    ])'],
+];
+// Execution + results artifacts for the switcher demo
+const RUN_CODE=[
+  ['from ','kw','classiq ','','import ','kw','execute'],
+  ['from ','kw','classiq.execution ','','import ','kw','ExecutionPreferences'],
+  [],
+  ['# Run the synthesized program on a simulator','com'],
+  ['prefs = ExecutionPreferences(num_shots=','','2048','num',')'],
+  ['job = execute(qprog, prefs)'],
+  ['result = job.result()'],
+  ['counts = result[','','0','num','].value.parsed_counts'],
+  ['print(counts)'],
+];
+const RESULTS_CODE=[
+  ['# Execution results — QAOA portfolio · 2048 shots','com'],
+  ['# Top measured bitstrings by probability','com'],
+  [],
+  ['best        = ','','"010110"','str','   ','','# selected assets','com'],
+  ['probability = ','','0.184','num'],
+  ['cost        = -','','1.472','num','   ','','# risk-adjusted return','com'],
+  ['feasible    = ','','True','kw'],
+];
+function colorize(line){
+  if(!line.length) return React.createElement('span',null,' ');
+  const out=[]; for(let i=0;i<line.length;i+=2){const t=line[i],cls=line[i+1];
+    out.push(React.createElement('span',{key:i,className:cls?'tok-'+cls:null},t));}
+  return out;
+}
+// code renderer — per-line rows so text wraps to the pane width with line numbers still aligned
+function CodeBlock({code}){
+  return React.createElement('div',{className:'code'},
+    (code||[]).map((l,i)=>React.createElement('div',{className:'codeline',key:i},
+      React.createElement('span',{className:'cl-num'},i+1),
+      React.createElement('span',{className:'cl-txt'},colorize(l)))));
+}
+
+// Recent starts empty — entries are added only once a session is created.
+const RECENTS=[];
+
+/* ---------------- circuit (Quantum Program) ----------------
+   Classiq QP visualization, exported from Figma (node 63:2277). */
+/* circuit details side panel (fullscreen) — Transpiled Info / Program Info */
+const BASIS_GATES='cx, u1, y, id, sdg, rz, sx, cy, z, x, s, t, u2, tdg, cz, sxdg, rx, p, ry, u, h, r';
+function InfoPanel({onCollapse}){
+  const [tab,setTab]=useState('transpiled');
+  const row=(k,v)=>React.createElement('div',{className:'ip-row',key:k},
+    React.createElement('span',{className:'ip-k'},k+': '),React.createElement('span',{className:'ip-v'},v));
+  const gate=(k,v)=>React.createElement('div',{className:'ip-gate',key:k},
+    React.createElement('span',{className:'ip-gk'},k+' : '),React.createElement('span',{className:'ip-gv'},v));
+  const heading=(t)=>React.createElement('div',{className:'ip-h',key:t},t);
+  const kv=(k,v,mono)=>React.createElement('div',{className:'ip-kv',key:k},
+    React.createElement('span',{className:'ip-k'},k+' '),React.createElement('span',{className:mono?'ip-mono':'ip-v'},v));
+  const transpiled=React.createElement('div',{className:'ip-body'},
+    row('Backend name','Default'),row('Depth','1152'),row('Width','15'),
+    heading('Gate count'),
+    gate('CX','936'),gate('P','760'),gate('U','242'),gate('H','61'),gate('TDG','48'),gate('T','48'),gate('RZ','30'),gate('RX','15'),
+    heading('Hardware details'),
+    kv('Basis Gates:',BASIS_GATES),kv('Symmetric Connectivity:','True'));
+  const program=React.createElement('div',{className:'ip-body'},
+    row('Depth','1042'),row('Width','15'),
+    heading('Gate count'),
+    gate('H','5'),gate('CX','888'),gate('U','1143'),gate('RX','15'),
+    kv('Gate Set:',BASIS_GATES),
+    heading('Metadata'),
+    row('Circuit Display Name','main'),kv('ID:','3HXXAJY3XCkRlxWjYBaiwtysQH3',true));
+  return React.createElement('aside',{className:'fs-info'},
+    React.createElement('div',{className:'ip-head'},
+      React.createElement('span',{className:'ip-title'},'Circuit details'),
+      React.createElement(Tooltip,{label:'Collapse panel'},
+        React.createElement('button',{className:'ip-collapse','aria-label':'Collapse panel',onClick:onCollapse},IcChevR({s:16})))),
+    React.createElement('div',{className:'ip-tabs',role:'tablist'},
+      React.createElement('button',{className:cx('ip-tab',tab==='transpiled'&&'active'),role:'tab','aria-selected':tab==='transpiled',onClick:()=>setTab('transpiled')},'Transpiled Info'),
+      React.createElement('button',{className:cx('ip-tab',tab==='program'&&'active'),role:'tab','aria-selected':tab==='program',onClick:()=>setTab('program')},'Program Info')),
+    tab==='transpiled'?transpiled:program);
+}
+/* collapsed (top-level) circuit view — functional blocks only, no per-qubit wires */
+const collapsedBlock=(x,w,label)=>
+  `<rect x="${x}" y="54" width="${w}" height="92" rx="10" fill="#4d5a1e" stroke="#aecb4f" stroke-width="1.5"/>`+
+  `<rect x="${x+2}" y="44" width="22" height="18" rx="4" fill="#cfe86b"/>`+
+  `<text x="${x+13}" y="58" fill="#20260c" font-size="15" text-anchor="middle" font-family="monospace">+</text>`+
+  `<text x="${x+w/2}" y="105" fill="#ffffff" font-size="15" font-weight="600" text-anchor="middle" `+
+  `font-family="-apple-system,system-ui,sans-serif">${label}</text>`;
+const COLLAPSED_SVG=
+  `<svg viewBox="0 0 1040 200" width="100%" role="img" aria-label="Collapsed circuit — top-level functional blocks">`+
+  `<rect x="24" y="30" width="992" height="140" rx="12" fill="none" stroke="#7d8f3a" stroke-width="1.5"/>`+
+  `<text x="40" y="54" fill="#a3b34a" font-size="18" font-family="monospace">−</text>`+
+  `<line x1="44" y1="100" x2="996" y2="100" stroke="#9b7cff" stroke-width="3"/>`+
+  `<circle cx="92" cy="100" r="7" fill="#9b7cff"/>`+
+  `<line x1="122" y1="112" x2="140" y2="88" stroke="#9b7cff" stroke-width="2"/>`+
+  `<text x="116" y="84" fill="#b9a6ff" font-size="15" font-family="monospace">5</text>`+
+  `<text x="128" y="130" fill="#b9a6ff" font-size="14" font-family="monospace">v</text>`+
+  `<rect x="420" y="44" width="560" height="112" rx="10" fill="none" stroke="#4bd0d6" stroke-width="1.5"/>`+
+  `<text x="436" y="40" fill="#4bd0d6" font-size="15" font-family="monospace">− repeat 3</text>`+
+  collapsedBlock(170,214,'hadamard_transform')+
+  collapsedBlock(470,214,'apply_cost')+
+  collapsedBlock(740,214,'apply_to_all')+
+  `</svg>`;
+function Circuit({collapsed}={}){
+  if(collapsed) return React.createElement('div',{className:'circuit-scroll'},
+    React.createElement('div',{className:'qp-frame qp-collapsed',
+      dangerouslySetInnerHTML:{__html:COLLAPSED_SVG}}));
+  return React.createElement('div',{className:'circuit-scroll'},
+    React.createElement('div',{className:'qp-frame'},
+      React.createElement('img',{className:'qp-img qp-dark',src:'./assets/quantum-program.png',
+        alt:'Quantum program — QFT circuit with phase/target registers, H, CPHASE and SWAP gates',draggable:false}),
+      React.createElement('img',{className:'qp-img qp-light',src:'./assets/quantum-program-light.png',
+        alt:'',draggable:false,'aria-hidden':true})));
+}
+
+/* ---------------- jobs dashboard (Run artifact) ----------------
+   Charts follow the dataviz skill: single-hue teal ramp (donut, 2px gaps),
+   one teal series (bars); status uses reserved status colors + icon + label. */
+const JOBS_PIE=[
+  {label:'Aer Simulator',v:275,c:'#8ce8e1'},
+  {label:'ibm_kyiv',v:200,c:'#4fccd2'},
+  {label:'ibm_brisbane',v:187,c:'#2fb0ba'},
+  {label:'IonQ Aria',v:173,c:'#238e9b'},
+  {label:'Rigetti Ankaa',v:90,c:'#1a6c7b'},
+];
+const JOBS_BARS=[['Jan',62],['Feb',96],['Mar',78],['Apr',41],['May',84],['Jun',69]];
+const JOBS_ROWS=[
+  {name:'vqe_h2_ground_state',backend:'Aer Simulator',provider:'IBM',status:'run',xx:5,yy:5},
+  {name:'qaoa_portfolio_12',backend:'ibm_kyiv',provider:'IBM',status:'done',xx:5,yy:5},
+  {name:'grover_search_8',backend:'ibm_brisbane',provider:'IBM',status:'done',xx:5,yy:5},
+  {name:'qft_phase_estimation',backend:'Aer Simulator',provider:'IBM',status:'done',xx:5,yy:5},
+];
+function Donut(){
+  const r=80,sw=30,C=2*Math.PI*r,total=JOBS_PIE.reduce((s,d)=>s+d.v,0);
+  let acc=0;
+  const slices=JOBS_PIE.map((d,i)=>{const f=d.v/total,start=acc;acc+=f;const dash=Math.max(0,f*C-4);
+    return React.createElement('circle',{key:i,cx:120,cy:110,r:r,fill:'none',stroke:d.c,strokeWidth:sw,
+      strokeDasharray:dash+' '+(C-dash),strokeDashoffset:-start*C,className:'donut-slice',style:{animationDelay:(i*90)+'ms'}},
+      React.createElement('title',null,d.label+' — '+d.v+' jobs'));});
+  acc=0;
+  const labels=JOBS_PIE.map((d,i)=>{const f=d.v/total,mid=acc+f/2;acc+=f;const ang=mid*2*Math.PI-Math.PI/2,rr=r+sw/2+13;
+    return React.createElement('text',{key:'l'+i,x:120+Math.cos(ang)*rr,y:110+Math.sin(ang)*rr,className:'donut-label',
+      textAnchor:'middle',dominantBaseline:'middle'},d.v);});
+  return React.createElement('svg',{viewBox:'0 0 240 220',className:'donut',style:{width:'100%',maxWidth:280}},
+    React.createElement('g',{transform:'rotate(-90 120 110)'},slices),labels);
+}
+function Bars(){
+  const data=JOBS_BARS,max=Math.max.apply(null,data.map(b=>b[1]));
+  const W=520,left=18,right=18,top=16,base=178,n=data.length,bw=44,gap=((W-left-right)-bw*n)/(n-1);
+  const grid=[0,.5,1].map((g,i)=>{const y=base-(base-top)*g;return React.createElement('line',{key:'g'+i,x1:left,y1:y,x2:W-right,y2:y,className:'bar-grid'});});
+  const bars=data.map((b,i)=>{const x=left+i*(bw+gap),h=(b[1]/max)*(base-top);
+    return React.createElement('g',{key:i},
+      React.createElement('rect',{x:x,y:base-h,width:bw,height:h,rx:5,className:'bar',style:{animationDelay:(i*80)+'ms'}},
+        React.createElement('title',null,b[0]+' · '+b[1]+' jobs')),
+      React.createElement('text',{x:x+bw/2,y:base+20,className:'bar-x',textAnchor:'middle'},b[0]));});
+  return React.createElement('svg',{viewBox:'0 0 520 210',style:{width:'100%'}},grid,bars);
+}
+// smooth Catmull-Rom → cubic-bezier path through points
+function smoothPath(pts){
+  if(pts.length<2) return pts.length?('M'+pts[0][0]+' '+pts[0][1]):'';
+  const r=v=>Math.round(v*10)/10;
+  let d='M'+r(pts[0][0])+' '+r(pts[0][1]);
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+    const c1x=p1[0]+(p2[0]-p0[0])/6,c1y=p1[1]+(p2[1]-p0[1])/6;
+    const c2x=p2[0]-(p3[0]-p1[0])/6,c2y=p2[1]-(p3[1]-p1[1])/6;
+    d+=' C'+r(c1x)+' '+r(c1y)+' '+r(c2x)+' '+r(c2y)+' '+r(p2[0])+' '+r(p2[1]);
+  }
+  return d;
+}
+const LINE_DATA=[42,88,60,18,70,64];
+function LineChart(){
+  const W=1000,padL=18,padR=18,top=18,base=232,labelY=272,n=LINE_DATA.length,max=100;
+  const x=i=>padL+i*(W-padL-padR)/(n-1),y=v=>base-(v/max)*(base-top);
+  const pts=LINE_DATA.map((v,i)=>[x(i),y(v)]);
+  const grid=[0,.25,.5,.75,1].map((g,i)=>React.createElement('line',{key:'g'+i,x1:padL,x2:W-padR,
+    y1:base-(base-top)*g,y2:base-(base-top)*g,className:'bar-grid'}));
+  const markers=pts.map((p,i)=>React.createElement('circle',{key:'m'+i,cx:p[0],cy:p[1],r:6,className:'line-dot',
+    style:{animationDelay:(140+i*150)+'ms'}},React.createElement('title',null,'Iteration '+(i+1)+' · '+LINE_DATA[i])));
+  const labels=pts.map((p,i)=>React.createElement('text',{key:'x'+i,x:p[0],y:labelY,className:'bar-x',textAnchor:'middle'},i+1));
+  return React.createElement('svg',{viewBox:'0 0 1000 300',style:{width:'100%'}},
+    grid,
+    React.createElement('path',{d:smoothPath(pts),className:'line-path',pathLength:1}),
+    markers,labels);
+}
+function JobsDashboard(){
+  const [tab,setTab]=useState('all');
+  const TABS=[['all','All Jobs'],['synth','Synthesis Jobs'],['exec','Execution Jobs']];
+  const statusBadge=(s)=>s==='done'
+    ?React.createElement('span',{className:'badge badge-success'},IcCheck({s:13}),'Done')
+    :React.createElement('span',{className:'badge badge-run'},React.createElement(Spinner,{s:12}),'In Process');
+  return React.createElement('div',{className:'jobs'},
+    React.createElement('div',{className:'jobs-head'},
+      React.createElement('h1',{className:'jobs-title'},'My Jobs'),
+      React.createElement('p',{className:'jobs-sub'},'Monitor synthesis and execution jobs across your backends and providers.')),
+    React.createElement('div',{className:'jchart'},
+      React.createElement('div',null,
+        React.createElement('div',{className:'jcard-title'},'Expectation value per iteration'),
+        React.createElement('div',{className:'jcard-sub'},'Classiq Simulator · latest execution')),
+      React.createElement('div',{className:'jchart-plot'},React.createElement(LineChart)),
+      React.createElement('div',null,
+        React.createElement('p',{className:'jchart-cap-title'},'Convergence toward the ground state'),
+        React.createElement('p',{className:'jchart-cap'},'The optimizer minimizes ⟨ψ|H|ψ⟩ across iterations — the curve flattening indicates the variational ansatz is approaching the minimum energy.'))),
+    React.createElement('div',{className:'jobs-toolbar'},
+      React.createElement('div',{className:'seg',role:'tablist'},
+        TABS.map(([id,l])=>React.createElement('button',{key:id,role:'tab','aria-selected':tab===id,
+          className:cx('seg-btn',tab===id&&'active'),onClick:()=>setTab(id)},l))),
+      React.createElement('div',{className:'grow'}),
+      React.createElement(Button,{variant:'outline',size:'sm'},IcList({s:15}),'Customize Columns',IcChevD({s:15})),
+      React.createElement(Button,{variant:'secondary',size:'sm'},IcPlus({s:15}),'Add columns')),
+    React.createElement('div',{className:'jtable'},
+      React.createElement('div',{className:'jrow head'},
+        React.createElement('span',{className:'jname'},React.createElement('input',{type:'checkbox',className:'jcheck','aria-label':'Select all'}),'Job name'),
+        React.createElement('span',null,'Backend'),React.createElement('span',null,'Provider'),
+        React.createElement('span',null,'Status'),React.createElement('span',null,'XX'),
+        React.createElement('span',null,'YY'),React.createElement('span',null,'')),
+      JOBS_ROWS.map((r,i)=>React.createElement('div',{key:i,className:'jrow body',style:{animationDelay:(180+i*70)+'ms'}},
+        React.createElement('span',{className:'jname'},
+          React.createElement('span',{className:'jgrip'},IcGrip({s:16})),
+          React.createElement('input',{type:'checkbox',className:'jcheck','aria-label':'Select '+r.name}),
+          React.createElement('span',{className:'jn mono'},r.name)),
+        React.createElement('span',{className:'jcell-mono'},r.backend),
+        React.createElement('span',null,React.createElement(Badge,{variant:'outline'},r.provider)),
+        React.createElement('span',null,statusBadge(r.status)),
+        React.createElement('span',{className:'jcell-mono'},r.xx),
+        React.createElement('span',{className:'jcell-mono'},r.yy),
+        React.createElement('span',null,React.createElement(Button,{icon:true,size:'sm',variant:'ghost','aria-label':'Row actions'},IcDots({s:16})))))));
+}
+
+/* ---------------- canvas panel ---------------- */
+const VQE_ARTIFACTS=[
+  {id:'a1',type:'code',label:'ansatz.py',code:H2_CODE},
+  {id:'a2',type:'qprog',label:'Quantum Program'},
+  {id:'a3',type:'code',label:'post_process.py',code:POST_CODE},
+];
+// Full artifact set for the switcher demo (the action sheet lists these)
+const DEMO_ARTIFACTS=[
+  {id:'qmod1',type:'code',label:'Qmod1',badge:'Qmod model',code:QMOD_PORTFOLIO,viz:'qp1'},
+  {id:'qp1',type:'qprog',label:'Qp1',badge:'Quantum program'},
+  {id:'qp2',type:'qprog',label:'Qp2',badge:'Quantum program'},
+  {id:'run1',type:'code',label:'Run1',badge:'Execution',render:'jobs',code:RUN_CODE},
+  {id:'results1',type:'code',label:'Results1',badge:'Results',render:'results',code:RESULTS_CODE},
+  {id:'results2',type:'code',label:'Result 3',badge:'Report',render:'triptych',code:RESULTS_CODE},
+  {id:'results3',type:'code',label:'Result 4',badge:'Workspace',render:'mosaic',code:RESULTS_CODE},
+  {id:'qflow',type:'code',label:'Qmod flow',badge:'Flow',render:'qflow',code:QMOD_PORTFOLIO},
+  {id:'r5',type:'code',label:'5 results',badge:'Results',render:'r5',code:RESULTS_CODE},
+];
+// A session produces exactly two artifacts: the staged Qmod flow (main) + the results workspace.
+const MAIN_ARTIFACTS=DEMO_ARTIFACTS.filter(a=>a.id==='qflow'||a.id==='r5');
+
+/* ---------- artifact switcher (file-card action sheet) ---------- */
+const artThumbIcon=(a)=>a.type==='qprog'?IcChip:a.render==='jobs'?IcPlay:/results/i.test(a.badge||'')?IcFile:IcCode;
+// how many panes an artifact opens into (mosaic/triptych/report/flow = 3, code paired with a viz = 2, else single)
+const panesOf=(a)=>/^(mosaic|triptych|results|qflow)$/.test(a.render||'')?3:a.viz?2:1;
+const artFile=(a)=>{const n=a.label.toLowerCase();
+  return a.render==='jobs'?n+'.job':a.type==='qprog'?n+'.qprog':/results/i.test(a.badge||'')?n+'.json':/qmod/i.test(a.badge||'')?n+'.qmod':n+'.py';};
+function ArtifactSwitcher({artifacts,current,setView,badgeOf,onRemove,onRename}){
+  const [open,setOpen]=useState(false);
+  const [editId,setEditId]=useState(null);   // artifact id being renamed inline
+  const [draft,setDraft]=useState('');
+  const startEdit=(a,e)=>{e.stopPropagation();setDraft(a.label);setEditId(a.id);};
+  const commit=()=>{const v=draft.trim();if(editId&&v&&onRename)onRename(editId,v);setEditId(null);};
+  const cancel=()=>setEditId(null);
+  const renderRow=(a)=>{
+    const editing=editId===a.id;
+    const title=editing
+      ? React.createElement('input',{className:'art-rename',autoFocus:true,value:draft,spellCheck:false,'aria-label':'Artifact name',
+          onChange:(e)=>setDraft(e.target.value),onClick:(e)=>e.stopPropagation(),onBlur:commit,
+          onKeyDown:(e)=>{if(e.key==='Enter'){e.preventDefault();commit();}else if(e.key==='Escape'){e.preventDefault();cancel();}}})
+      : React.createElement('div',{className:'art-title'},a.label);
+    return React.createElement('div',{key:a.id,role:'menuitemradio','aria-checked':a.id===current.id,
+      className:cx('art-row',a.id===current.id&&'active',editing&&'editing'),
+      onClick:editing?undefined:()=>{setView(a.id);setOpen(false);}},
+      React.createElement('div',{className:'art-thumb'},artThumbIcon(a)({s:18})),
+      React.createElement('div',{className:'art-info'},title,
+        React.createElement('div',{className:'art-sub'},
+          React.createElement('span',{className:'art-sub-label'},badgeOf(a)),
+          (p=>React.createElement('span',{className:'art-panes',title:p+' pane'+(p>1?'s':'')},
+            IcPanel({s:11}),p))(panesOf(a)))),
+      React.createElement('div',{className:'art-actions'},
+        !editing&&onRename&&React.createElement(Tooltip,{label:'Rename'},
+          React.createElement(Button,{icon:true,size:'sm',variant:'ghost',className:'art-x','aria-label':'Rename '+a.label,
+            onClick:(e)=>startEdit(a,e)},IcEdit({s:15})))));
+  };
+  return React.createElement('div',{style:{position:'relative',minWidth:0}},
+    React.createElement('button',{className:'switch-trigger','aria-haspopup':'menu','aria-expanded':open,onClick:()=>setOpen(o=>!o)},
+      IcList({s:16}),
+      React.createElement('span',{className:'switch-trigger-label'},current.label),
+      IcChevD({s:15})),
+    open&&React.createElement(React.Fragment,null,
+      React.createElement('div',{className:'scrim',onClick:()=>{setOpen(false);setEditId(null);}}),
+      React.createElement('div',{className:'switcher-pop',role:'menu'},
+        React.createElement('div',{className:'switcher-head'},
+          React.createElement('span',{className:'art-h-title'},'Artifacts')),
+        React.createElement('div',{className:'switcher-list'},
+          artifacts.map(renderRow)))));
+}
+/* ---------------- results (combined report: Qmod + Quantum program + Run) ---------------- */
+function ResultsView({onFull}){
+  const [col,setCol]=useState({});   // section title → collapsed
+  const codeBlock=(code)=>React.createElement(CodeBlock,{code:code});
+  const section=(icon,title,sub,body)=>{
+    const c=!!col[title];
+    return React.createElement('div',{className:cx('res-section',c&&'collapsed')},
+      React.createElement('div',{className:'res-head'},icon({s:15}),
+        React.createElement('span',{className:'res-title'},title),
+        React.createElement('span',{className:'res-sub'},sub),
+        React.createElement('div',{className:'grow'}),
+        React.createElement(Tooltip,{label:'Fullscreen'},
+          React.createElement(Button,{icon:true,size:'sm',variant:'ghost','aria-label':'Fullscreen '+title,
+            onClick:()=>onFull&&onFull(title,body)},IcMax({s:15}))),
+        React.createElement(Tooltip,{label:c?'Expand':'Collapse'},
+          React.createElement(Button,{icon:true,size:'sm',variant:'ghost','aria-label':(c?'Expand ':'Collapse ')+title,
+            onClick:()=>setCol(m=>Object.assign({},m,{[title]:!m[title]}))},(c?IcChevR:IcChevD)({s:16})))),
+      !c&&React.createElement('div',{className:'res-body'},body));
+  };
+  return React.createElement('div',{className:'results'},
+    section(IcCode,'Qmod1','Qmod model',React.createElement('div',{className:'res-code'},codeBlock(QMOD_PORTFOLIO))),
+    section(IcChip,'Qp1','Quantum program',React.createElement(Circuit)),
+    section(IcPlay,'Run1','Execution',React.createElement(JobsDashboard)));
+}
+/* shadcn-style Select — dark popover under the trigger (replaces native select) */
+function Select({options,placeholder,value,onChange}){
+  const [open,setOpen]=useState(false);
+  const [val,setVal]=useState(value||'');
+  const pick=(o)=>{setVal(o);setOpen(false);onChange&&onChange(o);};
+  return React.createElement('div',{className:'field-select'},
+    React.createElement('button',{type:'button',className:cx('select',open&&'open'),'aria-haspopup':'listbox','aria-expanded':open,
+      onClick:()=>setOpen(o=>!o)},
+      React.createElement('span',{className:cx('sel-val',!val&&'ph')},val||placeholder||'Select…')),
+    React.createElement('span',{className:'sel-chev'},IcChevD({s:15})),
+    open&&React.createElement(React.Fragment,null,
+      React.createElement('div',{className:'scrim',onClick:()=>setOpen(false)}),
+      React.createElement('div',{className:'sel-menu',role:'listbox'},
+        options.map(o=>React.createElement('button',{key:o,type:'button',role:'option','aria-selected':o===val,
+          className:cx('sel-opt',o===val&&'active'),onClick:()=>pick(o)},
+          React.createElement('span',{className:'sel-opt-check'},o===val?IcCheck({s:14}):null),o)))));
+}
+
+/* ---------------- advanced synthesis drawer ----------------
+   NOTE: Sheet/Drawer is NOT in the Classiq kit (flagged gap) — recomposed from Input/Button/Separator. */
+function SynthDrawer({onClose,onSynthesize}){
+  const [con,setCon]=useState(true),[pref,setPref]=useState(true);
+  const [closing,setClosing]=useState(false);
+  const close=useCallback(()=>{setClosing(true);setTimeout(onClose,230);},[onClose]);  // play exit, then unmount
+  useEffect(()=>{const k=(e)=>{if(e.key==='Escape')close();};
+    window.addEventListener('keydown',k);return ()=>window.removeEventListener('keydown',k);},[close]);
+  const sel=(label,opts)=>React.createElement('div',{className:'field-v'},
+    React.createElement('label',null,label),
+    React.createElement(Select,{options:opts,placeholder:'Select…'}));
+  const inp=(label,ph)=>React.createElement('div',{className:'field-v'},
+    React.createElement('label',null,label),
+    React.createElement('input',{className:'input',placeholder:ph,spellCheck:false}));
+  const group=(open,setOpen,title,children)=>React.createElement('div',{className:'drawer-group'},
+    React.createElement('button',{className:'drawer-group-head','aria-expanded':open,onClick:()=>setOpen(v=>!v)},
+      React.createElement('span',{className:'gh-ic',style:{transform:open?'none':'rotate(-90deg)'}},IcChevD({s:18})),title),
+    open&&React.createElement('div',{className:'drawer-fields'},children));
+  return React.createElement('div',{className:cx('drawer-scrim',closing&&'closing'),onClick:close,role:'presentation'},
+    React.createElement('div',{className:cx('drawer',closing&&'closing'),role:'dialog','aria-modal':true,'aria-label':'Synthesis configuration',
+      onClick:(e)=>e.stopPropagation()},
+      React.createElement('div',{className:'drawer-head'},
+        React.createElement('span',{className:'drawer-title'},'Synthesis configuration'),
+        React.createElement(Tooltip,{label:'Close'},
+          React.createElement(Button,{icon:true,size:'sm',variant:'ghost',onClick:close,'aria-label':'Close'},IcX({s:16})))),
+      React.createElement('div',{className:'drawer-body'},
+        group(con,setCon,'Constraints',React.createElement(React.Fragment,null,
+          inp('Max width','e.g. 24'),
+          sel('Optimization parameter',['None','Width','Depth','CX count']),
+          React.createElement('div',{style:{display:'flex',justifyContent:'flex-end'}},
+            React.createElement(Button,{variant:'outline',size:'sm'},'Reset')))),
+        React.createElement(Separator),
+        group(pref,setPref,'Preferences',React.createElement(React.Fragment,null,
+          sel('Backend service provider',['Classiq','IBM Quantum','AWS Braket','Azure Quantum']),
+          sel('Backend name',['Aer Simulator','ibm_kyiv','ibm_brisbane','IonQ Aria']),
+          sel('Basis gates',['CX · U','CX · RZ · SX · X','CZ · RX · RZ']),
+          React.createElement('div',{className:'field-v'},
+            React.createElement('label',null,'Connectivity map'),
+            React.createElement(Button,{variant:'outline',size:'sm'},IcPlus({s:15}),'Add coupling')),
+          sel('Output format',['QASM 2.0','QASM 3.0','QIR','LaTeX']),
+          sel('Transpilation option',['Auto optimize','Light','Intensive','None']),
+          inp('Timeout (sec)','300'),
+          inp('Optimization timeout (sec)','120'),
+          inp('Random seed','—')))),
+      React.createElement('div',{className:'drawer-foot'},
+        React.createElement(Button,{variant:'outline',size:'sm',onClick:close},'Cancel'),
+        React.createElement(Button,{variant:'primary',size:'sm',onClick:()=>onSynthesize?onSynthesize():close()},IcChip({s:15}),'Synthesize'))));
+}
+/* ---------------- execution config drawer (right side) ---------------- */
+function ExecuteDrawer({onClose,onRun}){
+  const [closing,setClosing]=useState(false);
+  const close=useCallback(()=>{setClosing(true);setTimeout(onClose,230);},[onClose]);
+  useEffect(()=>{const k=(e)=>{if(e.key==='Escape')close();};
+    window.addEventListener('keydown',k);return ()=>window.removeEventListener('keydown',k);},[close]);
+  const inp=(label,val,ph)=>React.createElement('div',{className:'field-v'},
+    React.createElement('label',null,label),
+    React.createElement('input',{className:'input',defaultValue:val,placeholder:ph,spellCheck:false}));
+  const chk=(label,def)=>React.createElement('label',{className:'chk-row'},
+    React.createElement('input',{type:'checkbox',className:'jcheck',defaultChecked:!!def}),
+    React.createElement('span',null,label));
+  return React.createElement('div',{className:cx('drawer-scrim',closing&&'closing'),onClick:close,role:'presentation'},
+    React.createElement('div',{className:cx('drawer',closing&&'closing'),role:'dialog','aria-modal':true,'aria-label':'Execution configuration',
+      onClick:(e)=>e.stopPropagation()},
+      React.createElement('div',{className:'drawer-head'},
+        React.createElement('span',{className:'drawer-title'},'Execution configuration'),
+        React.createElement(Tooltip,{label:'Close'},
+          React.createElement(Button,{icon:true,size:'sm',variant:'ghost',onClick:close,'aria-label':'Close'},IcX({s:16})))),
+      React.createElement('div',{className:'drawer-body'},
+        React.createElement('div',{className:'drawer-fields'},
+          React.createElement('div',{className:'field-v'},React.createElement('label',null,'Quantum program'),
+            React.createElement(Select,{options:['QAOA portfolio (12 assets)','Oblivious Amplitude Amplification','Grover search'],value:'QAOA portfolio (12 assets)'})),
+          React.createElement('div',{className:'field-v'},React.createElement('label',null,'Vendor'),
+            React.createElement('div',null,React.createElement(Badge,{variant:'secondary'},'Classiq'))),
+          React.createElement('div',{className:'field-v'},React.createElement('label',null,'Targets'),
+            React.createElement('div',{className:'chk-group'},chk('Simulator',true),chk('Hardware',false),chk('State Vector Simulator',true)))),
+        React.createElement(Separator),
+        React.createElement('div',{className:'drawer-group-title'},'Configurations'),
+        React.createElement('div',{className:'drawer-fields'},
+          inp('Num shots','1000'),
+          inp('Job name','','e.g. run-01'),
+          inp('Random seed','4045279349'),
+          inp('Measurement bit-flip probability','','Number'),
+          React.createElement('div',{className:'field-v'},React.createElement('label',null,'Transpilation option'),
+            React.createElement(Select,{options:['decompose','auto optimize','light','none'],value:'decompose'}))),
+        React.createElement(Separator),
+        React.createElement('div',{className:'drawer-group-title'},'Summary'),
+        React.createElement('div',{className:'exec-summary'},
+          React.createElement('div',{className:'es-title'},'Classiq · NVIDIA Statevector Simulator (GPU)'),
+          React.createElement('div',{className:'es-sub'},'Backend: nvidia_simulator_statevector · 1000 shots'))),
+      React.createElement('div',{className:'drawer-foot'},
+        React.createElement(Button,{variant:'outline',size:'sm',onClick:close},'Cancel'),
+        React.createElement(Button,{variant:'primary',size:'sm',onClick:onRun},IcPlay({s:15}),'Run'))));
+}
+/* ---------------- results histogram (measurement distribution) ---------------- */
+const histVal=(i)=>Math.round((Math.pow(Math.abs(Math.sin(i*0.9+1)*Math.cos(i*0.5)),1.4)*0.33+0.012)*1000)/1000;
+// Responsive histogram — the number of columns adapts to the measured pane width.
+function Histogram(){
+  const ref=useRef();
+  const [w,setW]=useState(760);
+  useEffect(()=>{
+    const el=ref.current; if(!el||!window.ResizeObserver) return;
+    const ro=new ResizeObserver((ents)=>{const cw=ents[0].contentRect.width; if(cw>0) setW(Math.round(cw));});
+    ro.observe(el); return ()=>ro.disconnect();
+  },[]);
+  const H=250,padL=46,padR=14,top=16,base=196;
+  const inner=Math.max(80,w-padL-padR);
+  const cols=Math.max(6,Math.min(64,Math.round(inner/26)));     // columns scale with width
+  const step=inner/cols, bw=Math.max(3,Math.min(step*0.62,34));
+  const bits=Math.max(3,Math.ceil(Math.log2(cols)));
+  const data=[]; for(let i=0;i<cols;i++) data.push(histVal(i));
+  const max=Math.max.apply(null,data);
+  const showLabels=step>=17;                                    // hide labels when too dense
+  const grid=[0,.25,.5,.75,1].map((g,i)=>{const y=base-(base-top)*g;return React.createElement('g',{key:'g'+i},
+    React.createElement('line',{x1:padL,x2:w-padR,y1:y,y2:y,className:'bar-grid'}),
+    React.createElement('text',{x:padL-8,y:y+3,className:'hist-y',textAnchor:'end'},(max*g).toFixed(2)));});
+  const bars=data.map((v,i)=>{const x=padL+i*step+(step-bw)/2,h=(v/max)*(base-top),lab=i.toString(2).padStart(bits,'0');
+    return React.createElement('g',{key:i},
+      React.createElement('rect',{x:x,y:base-h,width:bw,height:h,rx:2,className:'hist-bar',style:{animationDelay:(i*14)+'ms'}},
+        React.createElement('title',null,lab+' · '+v)),
+      showLabels&&React.createElement('text',{x:x+bw/2,y:base+6,className:'hist-x',textAnchor:'end',
+        transform:'rotate(-60 '+(x+bw/2)+' '+(base+6)+')'},lab));});
+  return React.createElement('div',{className:'hist-wrap',ref:ref},
+    React.createElement('svg',{width:w,height:H},grid,bars));
+}
+
+/* ---------------- generic resizable split (used by the mosaic) ---------------- */
+function Split({dir,ratio,setRatio,first,second}){
+  const ref=useRef();const [rzing,setRzing]=useState(false);
+  const start=(e)=>{e.preventDefault();setRzing(true);
+    const rect=ref.current.getBoundingClientRect();
+    const move=(ev)=>{const c=ev.touches?ev.touches[0]:ev;
+      const p=dir==='h'?(c.clientX-rect.left)/rect.width:(c.clientY-rect.top)/rect.height;
+      setRatio(Math.max(14,Math.min(86,p*100)));};
+    const up=()=>{setRzing(false);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);};
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);};
+  const key=(e)=>{const d=(e.key==='ArrowLeft'||e.key==='ArrowUp')?-3:(e.key==='ArrowRight'||e.key==='ArrowDown')?3:0;
+    if(!d)return;e.preventDefault();setRatio(v=>Math.max(14,Math.min(86,v+d)));};
+  return React.createElement('div',{className:cx('msplit',dir==='h'?'row':'col',rzing&&'rzing'),ref:ref},
+    React.createElement('div',{className:'mpane-wrap',style:dir==='h'?{width:ratio+'%'}:{height:ratio+'%'}},first),
+    React.createElement('div',{className:dir==='h'?'hresizer':'vresizer',role:'separator','aria-orientation':dir==='h'?'vertical':'horizontal',
+      tabIndex:0,onPointerDown:start,onKeyDown:key},React.createElement('div',{className:dir==='h'?'vgrip2':'vgrip'})),
+    React.createElement('div',{className:'mpane-wrap',style:{flex:'1 1 0'}},second));
+}
+
+/* ---------------- results mosaic: 3 panes, choose any layout, resizable + fullscreen ---------------- */
+const LAY_GLYPH={
+  top2:[[3,3,8,8],[13,3,8,8],[3,13,18,8]],
+  bottom2:[[3,3,18,8],[3,13,8,8],[13,13,8,8]],
+  left2:[[3,3,8,8],[3,13,8,8],[13,3,8,18]],
+  right2:[[3,3,8,18],[13,3,8,8],[13,13,8,8]],
+  rows3:[[3,3,18,4.6],[3,9.7,18,4.6],[3,16.4,18,4.6]],
+  cols3:[[3,3,4.6,18],[9.7,3,4.6,18],[16.4,3,4.6,18]],
+};
+const LAY_NAME={top2:'Two top, one bottom',bottom2:'One top, two bottom',left2:'Two left, one right',
+  right2:'One left, two right',rows3:'Three rows',cols3:'Three columns'};
+/* 2-artifact layouts (e.g. Qmod flow: Qmod + Qp) */
+const LAY2_GLYPH={rows:[[3,3,18,8],[3,13,18,8]],cols:[[3,3,8,18],[13,3,8,18]]};
+const LAY2_NAME={rows:'Top and bottom',cols:'Side by side'};
+const layGlyph=(k)=>React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.6},
+  (LAY_GLYPH[k]||LAY2_GLYPH[k]).map((r,i)=>React.createElement('rect',{key:i,x:r[0],y:r[1],width:r[2],height:r[3],rx:1.6})));
+function MosaicView({onFull,layout,onReport,onSynth,onExec}){
+  const [rO,setRO]=useState(50),[rI,setRI]=useState(50);
+  const codeBlock=(code)=>React.createElement(CodeBlock,{code:code});
+  // Synthesize is secondary (program already exists); Execute is the primary action
+  const splitBtn=(secondary,icon,label,al,on)=>React.createElement('div',{className:cx('split-btn',secondary&&'secondary')},
+    React.createElement('button',{className:'sb-main',onClick:on},icon({s:14}),label),
+    React.createElement('span',{className:'sb-sep'}),
+    React.createElement('button',{className:'sb-chev','aria-label':al,onClick:on},IcChevD({s:15})));
+  const P={
+    qmod:{icon:IcCode,label:'Qmod1',badge:'Qmod model',body:()=>codeBlock(QMOD_PORTFOLIO)},
+    qp:{icon:IcChip,label:'Qp1',badge:'Quantum program',body:()=>React.createElement(Circuit)},
+    res:{icon:IcFile,label:'Results',badge:'Histogram',body:()=>React.createElement(Histogram)},
+  };
+  const pane=(k)=>{const p=P[k];return React.createElement('div',{className:'vpane'},
+    React.createElement('div',{className:'vpane-head'},p.icon({s:15}),
+      React.createElement('span',{className:'vpane-label'},p.label),
+      React.createElement(Badge,{variant:'outline'},p.badge),
+      React.createElement('div',{className:'grow'}),
+      k==='qmod'&&onSynth&&splitBtn(true,IcChip,'Synthesize','Advanced synthesis options',onSynth),
+      k==='qp'&&onExec&&splitBtn(true,IcPlay,'Execute','Execution options',onExec),
+      k==='res'&&React.createElement(Button,{variant:'primary',size:'sm',onClick:()=>onReport&&onReport()},IcSpark({s:14}),'Analyze'),
+      React.createElement(Tooltip,{label:'Fullscreen'},
+        React.createElement(Button,{icon:true,size:'sm',variant:'ghost','aria-label':'Fullscreen '+p.label,
+          onClick:()=>onFull&&(k==='res'?onFull('Results',React.createElement(ResultsFullView),{bare:true}):onFull(p.label,p.body()))},IcMax({s:15})))),
+    React.createElement('div',{className:'vpane-body'},p.body()));};
+  const A=pane('qmod'),B=pane('qp'),C=pane('res');
+  const S=(dir,ratio,setR,f,s)=>React.createElement(Split,{dir:dir,ratio:ratio,setRatio:setR,first:f,second:s});
+  let area;
+  if(layout==='top2') area=S('v',rO,setRO,S('h',rI,setRI,A,B),C);
+  else if(layout==='bottom2') area=S('v',rO,setRO,A,S('h',rI,setRI,B,C));
+  else if(layout==='left2') area=S('h',rO,setRO,S('v',rI,setRI,A,B),C);
+  else if(layout==='right2') area=S('h',rO,setRO,A,S('v',rI,setRI,B,C));
+  else if(layout==='rows3') area=S('v',rO,setRO,A,S('v',rI,setRI,B,C));
+  else area=S('h',rO,setRO,A,S('h',rI,setRI,B,C));
+  return React.createElement('div',{className:'mosaic'},
+    React.createElement('div',{className:'mosaic-area'},area));
+}
+/* layout action sheet — opens from the canvas header */
+function LayoutSheet({layout,setLayout,glyphs,names}){
+  const [open,setOpen]=useState(false);
+  const G=glyphs||LAY_GLYPH,N=names||LAY_NAME;
+  return React.createElement('div',{style:{position:'relative'}},
+    React.createElement(Tooltip,{label:'Layout'},
+      React.createElement('button',{className:cx('btn','btn-ghost','btn-icon','btn-sm'),'aria-haspopup':'menu','aria-expanded':open,
+        onClick:()=>setOpen(o=>!o)},layGlyph(layout))),
+    open&&React.createElement(React.Fragment,null,
+      React.createElement('div',{className:'scrim',onClick:()=>setOpen(false)}),
+      React.createElement('div',{className:'menu lay-menu',role:'menu',style:{right:0,left:'auto',top:'calc(100% + 8px)'}},
+        React.createElement('div',{className:'menu-label'},'Layout'),
+        Object.keys(G).map(k=>React.createElement('button',{key:k,role:'menuitemradio','aria-checked':layout===k,
+          className:cx('menu-item','lay-item',layout===k&&'active'),onClick:()=>{setLayout(k);setOpen(false);}},
+          React.createElement('span',{className:'lay-item-ic'},layGlyph(k)),
+          React.createElement('span',{className:'lay-item-name'},N[k]),
+          layout===k&&React.createElement('span',{className:'lay-item-check'},IcCheck({s:15})))))));
+}
+
+/* ---------------- fullscreen results: Jobs History drawer + histogram ---------------- */
+const JH_ST=['done','done','done','done','error','done','pending','pending','pending','pending','done','done','done','done'];
+const JH_DATE=['31/07/2024','25/07/2024','18/07/2024','11/07/2024','11/07/2024','08/07/2024','07/07/2024','02/07/2024','01/07/2024','01/07/2024','30/06/2024','30/06/2024','30/06/2024','30/06/2024'];
+function ResultsFullView(){
+  const [sel,setSel]=useState(13);
+  const stIc={done:IcCheck,error:IcX,pending:IcClock};
+  const dl=(k,v,mod)=>React.createElement('div',{className:'jh-dl'},
+    React.createElement('span',{className:'jh-dk'},k+' '),
+    React.createElement('span',{className:cx('jh-dv',mod)},v));
+  const rows=JH_ST.map((st,i)=>{
+    const on=sel===i;
+    return React.createElement('div',{key:i},
+      React.createElement('button',{className:cx('jh-item',on&&'active'),onClick:()=>setSel(on?-1:i)},
+        (on?IcChevD:IcChevR)({s:16}),
+        React.createElement('span',{className:'jh-name'},'Job’s name '+(i+1)),
+        React.createElement('span',{className:'jh-date'},JH_DATE[i]),
+        on&&React.createElement('span',{className:'jh-acts'},
+          React.createElement('span',{className:'jh-act','aria-label':'Delete'},IcTrash({s:14})),
+          React.createElement('span',{className:'jh-act','aria-label':'Edit'},IcEdit({s:14}))),
+        React.createElement('span',{className:cx('jh-st',st)},stIc[st]({s:11}))),
+      on&&React.createElement('div',{className:'jh-detail'},
+        dl('Quantum program executed:','3fc86fe4-B8be-4542-…','link'),
+        dl('Job ID:','9a8480f6-D55e-4055-B7dc-185506e955e4'),
+        dl('Vendor:','Azure Quantum'),
+        dl('Backend name:','Quantinuum.Sim.H1-1e'),
+        dl('Date Time completed:','Aug 1, 2024, 10:18 AM'),
+        dl('Num shots:','1000'),
+        dl('Status:','Completed','ok')));
+  });
+  return React.createElement('div',{className:'rfull'},
+    React.createElement('div',{className:'jobs-hist'},
+      React.createElement('div',{className:'jh-head'},'Jobs history'),
+      React.createElement(Separator),
+      React.createElement('div',{className:'jh-list'},rows)),
+    React.createElement('div',{className:'rfull-main'},React.createElement(Histogram)));
+}
+
+/* ================= "5 results" artifact =================
+   A mosaic/split layout whose Results pane carries a dropdown of five result types
+   (one per result-producing function). The split pane shows a responsive GLIMPSE of
+   the selected result's chart; fullscreen opens the FULL PAGE (jobs-history sidebar +
+   chart + DataFrame), mirroring the Classiq result pages. Charts follow the dataviz
+   skill: single-hue teal for magnitude/lines, cyclic hue only for state-vector phase,
+   subtle green/red on signed table values (redundant with the sign, never colour-alone). */
+const _c=React.createElement;
+function useWidth(def){
+  const ref=useRef();const [w,setW]=useState(def||720);
+  useEffect(()=>{const el=ref.current;if(!el||!window.ResizeObserver)return;
+    const ro=new ResizeObserver(es=>{const cw=es[0].contentRect.width;if(cw>0)setW(Math.round(cw));});
+    ro.observe(el);return()=>ro.disconnect();},[]);
+  return [ref,w];
+}
+// measure both width AND height of the attached element (charts fill their pane)
+function useSize(dw,dh){
+  const ref=useRef();const [sz,setSz]=useState({w:dw||720,h:dh||240});
+  useEffect(()=>{const el=ref.current;if(!el||!window.ResizeObserver)return;
+    const ro=new ResizeObserver(es=>{const r=es[0].contentRect;
+      if(r.width>0&&r.height>0)setSz(p=>(p.w===Math.round(r.width)&&p.h===Math.round(r.height))?p:{w:Math.round(r.width),h:Math.round(r.height)});});
+    ro.observe(el);return()=>ro.disconnect();},[]);
+  return [ref,sz.w,sz.h];
+}
+const TAU=2*Math.PI;
+const phaseColor=(ph)=>{const d=(((ph%TAU)+TAU)%TAU)/TAU*360;return 'hsl('+Math.round(d)+' 68% 56%)';};
+const ampStr=(mag,ph)=>{const re=mag*Math.cos(ph),im=mag*Math.sin(ph);
+  return '('+re.toFixed(3)+(im>=0?'+':'−')+Math.abs(im).toFixed(3)+'j)';};
+function toCSV(columns,rows){
+  const esc=(v)=>{const s=(v==null?'':String(v));return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  return [columns.map(c=>c.label).join(',')].concat(rows.map(r=>columns.map(c=>esc(r[c.key])).join(','))).join('\n');
+}
+function downloadCSV(name,columns,rows){
+  try{const blob=new Blob([toCSV(columns,rows)],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),0);}catch(e){}
+}
+
+/* ---- data (seeded, deterministic) ---- */
+function seeded(seed){let s=(seed>>>0)||1;return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+const SAMPLE_ROWS=(function(){
+  const r=seeded(1337),n=48,raw=[];
+  for(let i=0;i<n;i++) raw.push(Math.pow(r(),1.7));
+  const sum=raw.reduce((a,b)=>a+b,0);
+  return raw.map((v,i)=>{const count=Math.max(1,Math.round(v/sum*1000)),bits=i.toString(2).padStart(6,'0');
+    return {idx:i,xdec:'x='+(i%8),v:'{x:['+(i&1)+','+((i>>1)&1)+','+((i>>2)&1)+'], s:['+(i&1)+']}',
+      count:count,prob:+(count/1000).toFixed(3),bits:'0101'+bits.slice(2)};});
+})();
+const SWEEP_ROWS=(function(){const n=20,a=[],r=seeded(7);
+  for(let i=0;i<n;i++){const th=i/(n-1)*TAU;
+    a.push({idx:i,theta:th,val:+(Math.cos(th)+(r()-0.5)*0.02).toFixed(3),std:+(0.02+0.01*Math.abs(Math.sin(th))).toFixed(3)});}
+  return a;})();
+const VQE_ENERGY=(function(){
+  const seed=[1.0,1.0,0.55,0.72,-0.40,-1.05,-1.03,-1.08,-0.72,-0.40,-0.78,-1.08,-1.12,-1.05,-1.13];
+  const r=seeded(99),a=seed.slice();
+  while(a.length<30) a.push(+(-1.117+(r()-0.5)*0.03).toFixed(3));
+  return a;})();
+const VQE_PARAMS=[-0.128,1.614,-0.320,1.527];
+const VQE_HIST=(function(){const r=seeded(5);
+  return VQE_ENERGY.map((e,i)=>{const t=i/29,jit=()=>(r()-0.5)*0.2*(1-t);
+    return {idx:i,energy:e,
+      p0:+(VQE_PARAMS[0]*t+jit()).toFixed(2),p1:+(1+(VQE_PARAMS[1]-1)*t+jit()).toFixed(2),
+      p2:+(VQE_PARAMS[2]*t+jit()).toFixed(2),p3:+(VQE_PARAMS[3]*t+jit()).toFixed(2)};});
+})();
+const SV_ROWS=(function(){const r=seeded(2024),n=64,mags=[];
+  for(let i=0;i<n;i++) mags.push(Math.pow(r(),1.9));
+  const norm=Math.sqrt(mags.reduce((a,m)=>a+m*m,0))||1;
+  return mags.map((m,i)=>{const mag=m/norm,phase=(r()*2-1)*Math.PI,bits=i.toString(2).padStart(6,'0');
+    return {idx:i,amp:ampStr(mag,phase),mag:+mag.toFixed(3),phase:phase,prob:+(mag*mag).toFixed(3),bits:bits};});
+})();
+const META=(program,jobId,backend,date)=>({program:program,jobId:jobId,backend:backend,date:date,shots:'1000'});
+const SAMPLE_META=META('sample_example_Aug.6.2026','eab38ced-e7f3-4379-99c2-5c222f438cf7','simulator','Aug 6, 2026, 11:36 AM');
+const OBS1_META=META('observe_example_Aug.6.2026','c7a3e8f1-42d7-4a9b-8c12-5f3d2e1a9b8c','simulator','Aug 6, 2026, 3:42 PM');
+const SWEEP_META=META('param_sweep_Aug.6.2026','d9f4a2b1-58c3-4e7d-9a1f-3c8b7e2d6f5a','simulator','Aug 6, 2026, 4:15 PM');
+const VQE_META=META('vqe_ansatz_Aug.6.2026','a5c8a315-d383-4d91-9256-22e33c41c542','simulator','Aug 6, 2026, 5:30 PM');
+const SV_META=META('statevector_Aug.4.2026','b8ff8641-11d1-42c7-b427-8213490f3756','simulator_statevector','Aug 4, 2026, 3:16 PM');
+
+/* ---- chart primitives ---- */
+function AreaLineChart({data,xLabels,yLabel,xLabel,height,markers,fill}){
+  const [ref,w,h]=useSize(720,height||300);
+  const H=fill?Math.max(120,h):(height||300);
+  const tight=w<360;                                   // narrow → shed axis labels/markers
+  const padL=tight?36:54,padR=14,top=14,base=H-(tight?16:28),labelY=H-10;
+  const n=data.length,inner=Math.max(48,w-padL-padR);
+  const ys=data.map(d=>d.y);
+  let mn=Math.min.apply(null,ys),mx=Math.max.apply(null,ys);
+  if(mn===mx){mn-=1;mx+=1;} const pv=(mx-mn)*0.14;mn-=pv;mx+=pv;
+  const X=i=>padL+(n<=1?inner/2:i*inner/(n-1)),Y=v=>base-((v-mn)/(mx-mn))*(base-top);
+  const pts=data.map((d,i)=>[X(i),Y(d.y)]);
+  const zeroY=(mn<0&&mx>0)?Y(0):null;
+  const gridN=H<180?3:5,gsteps=[];for(let i=0;i<gridN;i++)gsteps.push(i/(gridN-1));
+  const grid=gsteps.map((g,i)=>{const val=mn+(mx-mn)*g,y=Y(val);
+    return _c('g',{key:'g'+i},
+      _c('line',{x1:padL,x2:w-padR,y1:y,y2:y,className:'bar-grid'}),
+      _c('text',{x:padL-6,y:y+3,className:'hist-y',textAnchor:'end'},val.toFixed(tight?1:2)));});
+  const linePath=smoothPath(pts);
+  const areaPath=linePath+' L'+X(n-1)+' '+(zeroY!=null?zeroY:base)+' L'+X(0)+' '+(zeroY!=null?zeroY:base)+' Z';
+  const showM=markers!==false&&n<=40&&w>340;
+  const mk=showM?pts.map((p,i)=>_c('circle',{key:'m'+i,cx:p[0],cy:p[1],r:4,className:'line-dot'},
+    _c('title',null,(xLabels?xLabels[i]:i)+' · '+(Math.round(data[i].y*1000)/1000)))):null;
+  const stride=Math.max(1,Math.ceil(n/Math.max(2,Math.floor(inner/48))));  // thin x-ticks to what fits
+  const showLabs=xLabels&&!tight&&base>=H-30;
+  const labs=showLabs?pts.map((p,i)=>((i%stride===0||i===n-1)?_c('text',{key:'x'+i,x:p[0],y:labelY,className:'hist-x2',textAnchor:'middle'},xLabels[i]):null)):null;
+  return _c('div',{className:cx('chart-wrap',fill&&'fill')},
+    yLabel&&_c('div',{className:'chart-ylab'},yLabel),
+    _c('div',{className:'chart-plot',ref:ref},
+      _c('svg',{width:w,height:H,role:'img','aria-label':yLabel||'line chart'},
+        grid,
+        zeroY!=null&&_c('line',{x1:padL,x2:w-padR,y1:zeroY,y2:zeroY,className:'zero-line'}),
+        _c('path',{d:areaPath,className:'area-fill'}),
+        _c('path',{d:linePath,className:'line-path',pathLength:1}),
+        mk,labs)),
+    xLabel&&!tight&&_c('div',{className:'chart-xlab'},xLabel));
+}
+function CountBars({data,height,scroll,colorPhase,fill,fitAll}){
+  const [ref,w,h]=useSize(720,height||260);
+  const H=fill?Math.max(120,h):(height||260);
+  const tight=w<360;
+  const padL=tight?32:42,padR=12,top=12,base=H-(tight?14:26),labelY=H-12;
+  // glimpse fit-to-width: keep the most significant bars that fit, in original order.
+  // fitAll (full page): squeeze every bar into the width — no downsample, no scroll.
+  let d=data;
+  if(!scroll&&!fitAll){
+    const cap=Math.max(4,Math.floor((w-padL-padR)/12));
+    if(data.length>cap){
+      const keep=data.map((x,i)=>i).sort((a,b)=>data[b].value-data[a].value).slice(0,cap).sort((a,b)=>a-b);
+      d=keep.map(i=>data[i]);
+    }
+  }
+  const n=d.length,fitStep=Math.max(1,(w-padL-padR)/n);
+  const step=scroll?Math.max(fitStep,20):fitStep;
+  const svgW=Math.max(w,Math.round(padL+padR+step*n));
+  const bw=Math.min(step*0.66,scroll?16:30);
+  const max=Math.max.apply(null,d.map(x=>x.value))||1;
+  const gridN=H<180?3:5,gsteps=[];for(let i=0;i<gridN;i++)gsteps.push(i/(gridN-1));
+  const grid=gsteps.map((g,i)=>{const y=base-(base-top)*g,val=max*g;
+    return _c('g',{key:'g'+i},
+      _c('line',{x1:padL,x2:svgW-padR,y1:y,y2:y,className:'bar-grid'}),
+      _c('text',{x:padL-6,y:y+3,className:'hist-y',textAnchor:'end'},val<1?val.toFixed(2):Math.round(val)));});
+  const showLab=step>=26&&!tight;
+  const bars=d.map((b,i)=>{const x=padL+i*step+(step-bw)/2,bh=Math.max(0,(b.value/max)*(base-top));
+    return _c('g',{key:i},
+      _c('rect',{x:x,y:base-bh,width:bw,height:bh,rx:3,className:colorPhase?'sv-bar':'hist-bar',
+        style:Object.assign({animationDelay:(Math.min(i,30)*16)+'ms'},colorPhase?{fill:phaseColor(b.phase)}:null)},
+        _c('title',null,(b.tip||b.label)+' · '+b.value)),
+      showLab&&_c('text',{x:x+bw/2,y:labelY,className:'hist-x3',textAnchor:'end',
+        transform:'rotate(-55 '+(x+bw/2)+' '+labelY+')'},b.label));});
+  return _c('div',{className:cx('chart-wrap',scroll&&'scroll-x',fill&&'fill')},
+    _c('div',{className:'chart-plot',ref:ref},
+      _c('svg',{width:svgW,height:H,role:'img','aria-label':'bar chart'},grid,bars)));
+}
+function PhaseWheel(){
+  const cx0=42,cy0=42,rO=32,rI=18,seg=40,arcs=[];
+  for(let i=0;i<seg;i++){const a0=i/seg*TAU-Math.PI/2,a1=(i+1)/seg*TAU-Math.PI/2;
+    const x0=cx0+rO*Math.cos(a0),y0=cy0+rO*Math.sin(a0),x1=cx0+rO*Math.cos(a1),y1=cy0+rO*Math.sin(a1);
+    const x2=cx0+rI*Math.cos(a1),y2=cy0+rI*Math.sin(a1),x3=cx0+rI*Math.cos(a0),y3=cy0+rI*Math.sin(a0);
+    arcs.push(_c('path',{key:i,fill:phaseColor(i/seg*TAU),
+      d:'M'+x0+' '+y0+'A'+rO+' '+rO+' 0 0 1 '+x1+' '+y1+'L'+x2+' '+y2+'A'+rI+' '+rI+' 0 0 0 '+x3+' '+y3+'Z'}));}
+  const ticks=[['0',0],['π/2',Math.PI/2],['π',Math.PI],['3π/2',3*Math.PI/2]].map(([lab,a],i)=>{
+    const ang=a-Math.PI/2,r=rO+8;return _c('text',{key:i,x:cx0+r*Math.cos(ang),y:cy0+r*Math.sin(ang)+3,className:'pw-tick',textAnchor:'middle'},lab);});
+  return _c('div',{className:'phase-wheel'},
+    _c('svg',{width:92,height:84,viewBox:'0 0 84 84',role:'img','aria-label':'Phase colour wheel 0 to 2π'},_c('g',null,arcs),ticks),
+    _c('div',{className:'pw-cap'},'Phase'));
+}
+function ScalarHero({formula,value,pm,stats}){
+  return _c('div',{className:'scalar-hero'},
+    _c('div',{className:'sh-formula'},formula),
+    _c('div',{className:'sh-main'},_c('span',{className:'sh-big'},value),pm&&_c('span',{className:'sh-pm'},'± '+pm)),
+    stats&&_c('div',{className:'sh-stats'},stats.map((s,i)=>_c('div',{className:'sh-stat',key:i},
+      _c('div',{className:'sh-stat-l'},s[0]),_c('div',{className:'sh-stat-v'},s[1])))));
+}
+function StatGrid({items,cols}){
+  return _c('div',{className:'stat-grid',style:{gridTemplateColumns:'repeat('+(cols||items.length)+',minmax(0,1fr))'}},
+    items.map((it,i)=>_c('div',{className:'stat-card',key:i},
+      _c('div',{className:'stat-card-l'},it.label),
+      _c('div',{className:cx('stat-card-v',it.tone)},it.value))));
+}
+
+/* ---- sortable / paginated DataFrame table with CSV ---- */
+function DataTable({columns,rows,pageSize,csvName,defaultSort}){
+  const [sort,setSort]=useState(defaultSort||{key:columns[0].key,dir:'desc'});
+  const [page,setPage]=useState(0);
+  const ps=pageSize||100;
+  const sorted=rows.slice().sort((a,b)=>{const av=a[sort.key],bv=b[sort.key];
+    const num=(typeof av==='number'&&typeof bv==='number');
+    const c=num?av-bv:String(av).localeCompare(String(bv));return sort.dir==='asc'?c:-c;});
+  const total=sorted.length,pages=Math.max(1,Math.ceil(total/ps)),p=Math.min(page,pages-1);
+  const shown=sorted.slice(p*ps,p*ps+ps);
+  const from=total?p*ps+1:0,to=Math.min(total,p*ps+ps);
+  const clickKey=(k,sortable)=>{if(sortable===false)return;
+    setSort(s=>s.key===k?{key:k,dir:s.dir==='asc'?'desc':'asc'}:{key:k,dir:'desc'});};
+  const th=(col)=>_c('th',{key:col.key,scope:'col',className:cx(col.mono&&'mono',col.num&&'num'),
+    'aria-sort':sort.key===col.key?(sort.dir==='asc'?'ascending':'descending'):'none',
+    onClick:()=>clickKey(col.key,col.sortable),style:col.sortable===false?null:{cursor:'pointer'}},
+    _c('span',{className:'th-in'},col.label,(col.sortable!==false&&sort.key===col.key)&&
+      _c('span',{className:'sort-ind',style:{display:'inline-flex',transform:sort.dir==='asc'?'rotate(180deg)':'none'}},IcChevD({s:12}))));
+  const td=(col,r)=>_c('td',{key:col.key,className:cx(col.mono&&'mono',col.num&&'num',col.tone&&col.tone(r[col.key]))},
+    col.fmt?col.fmt(r[col.key],r):r[col.key]);
+  const header=_c('thead',null,_c('tr',null,columns.map(th)));
+  const body=shown.map((r,i)=>_c('tr',{key:i},columns.map(col=>td(col,r))));
+  return _c('div',{className:'dtable-wrap'},
+    _c('div',{className:'dtable-bar'},
+      _c('span',{className:'dtable-count'},'Rows per page: '+ps+'    '+from+'–'+to+' of '+total),
+      _c('div',{className:'grow'}),
+      pages>1&&_c('span',{className:'dtable-pager'},
+        _c(Button,{icon:true,size:'sm',variant:'ghost','aria-label':'Previous page',onClick:()=>setPage(v=>Math.max(0,v-1))},IcChevL({s:16})),
+        _c(Button,{icon:true,size:'sm',variant:'ghost','aria-label':'Next page',onClick:()=>setPage(v=>Math.min(pages-1,v+1))},IcChevR({s:16}))),
+      _c(Tooltip,{label:'Download CSV'},_c(Button,{icon:true,size:'sm',variant:'ghost','aria-label':'Download CSV',
+        onClick:()=>downloadCSV(csvName||'results.csv',columns,sorted)},IcDownload({s:16})))),
+    _c('div',{className:'dtable-scroll'},_c('table',{className:'dtable'},header,_c('tbody',null,body))));
+}
+
+/* ---- jobs-history sidebar + full-page shell ---- */
+function JobsHistorySidebar({meta}){
+  const [sel,setSel]=useState(0);
+  const stIc={done:IcCheck,error:IcX,pending:IcClock};
+  const dl=(k,v,mod)=>_c('div',{className:'jh-dl'},_c('span',{className:'jh-dk'},k+' '),_c('span',{className:cx('jh-dv',mod)},v));
+  const rows=JH_ST.map((st,i)=>{const on=sel===i;
+    return _c('div',{key:i},
+      _c('button',{className:cx('jh-item',on&&'active'),onClick:()=>setSel(on?-1:i)},
+        (on?IcChevD:IcChevR)({s:16}),
+        _c('span',{className:'jh-name mono'},meta.jobId.slice(0,8)+'…'+(i?'-'+i:'')),
+        _c('span',{className:'jh-date'},JH_DATE[i]),
+        _c('span',{className:cx('jh-st',st)},stIc[st]({s:11}))),
+      on&&_c('div',{className:'jh-detail'},
+        dl('Quantum program:',meta.program,'link'),
+        dl('Job ID:',meta.jobId),dl('Vendor:','Classiq'),dl('Backend name:',meta.backend),
+        dl('DateTime completed:',meta.date),dl('Num shots:',meta.shots),dl('Status:','Completed','ok')));});
+  return _c('div',{className:'jobs-hist'},
+    _c('div',{className:'jh-head'},'Jobs history'),
+    _c('div',{className:'jh-list'},rows));
+}
+const rfSection=(title,node)=>_c('div',{className:'rf-section',key:title},_c('div',{className:'rf-title'},title),node);
+const rfCard=(node)=>_c('div',{className:'rf-card'},node);
+function ResultFullPage({meta,children}){
+  return _c('div',{className:'rfull'},
+    _c(JobsHistorySidebar,{meta:meta}),
+    _c('div',{className:'rfull-main r5-main'},children));
+}
+
+/* ---- 5 full pages ---- */
+function FullSample(){
+  const bars=SAMPLE_ROWS.map(r=>({label:r.xdec,value:r.count,tip:'v='+r.v}));
+  const cols=[
+    {key:'idx',label:'#',num:true,sortable:false},
+    {key:'v',label:'v',mono:true,sortable:false},
+    {key:'count',label:'Count',num:true},
+    {key:'prob',label:'Probability',num:true,fmt:v=>v.toFixed(3)},
+    {key:'bits',label:'Bitstring',mono:true,sortable:false}];
+  return _c(ResultFullPage,{meta:SAMPLE_META},
+    rfSection('Measurement results (count)',rfCard(_c(CountBars,{data:bars,height:300,fitAll:true}))),
+    rfSection('Full results',_c(DataTable,{columns:cols,rows:SAMPLE_ROWS,pageSize:100,csvName:'measurement_counts.csv',defaultSort:{key:'count',dir:'desc'}})));
+}
+function FullObserveScalar(){
+  return _c(ResultFullPage,{meta:OBS1_META},
+    rfSection('Expectation value',rfCard(_c(ScalarHero,{formula:'⟨H⟩ = ⟨Z₀Z₁ + 0.5·X₀⟩',value:'-1.137',pm:'0.024',
+      stats:[['Shots','1,000'],['Duration','1.2s'],['Backend','simulator']]}))));
+}
+function FullSweep(){
+  const data=SWEEP_ROWS.map(r=>({x:r.theta,y:r.val}));
+  const cols=[
+    {key:'idx',label:'#',num:true,sortable:false},
+    {key:'theta',label:'theta',num:true,fmt:v=>v.toFixed(2)},
+    {key:'val',label:'Expectation Value',num:true,fmt:v=>v.toFixed(3),tone:v=>v>=0?'cell-pos':'cell-neg'},
+    {key:'std',label:'Std Dev',num:true,fmt:v=>v.toFixed(3)}];
+  return _c(ResultFullPage,{meta:SWEEP_META},
+    rfSection('Expectation values (parameter sweep)',rfCard(_c(AreaLineChart,{data:data,xLabels:SWEEP_ROWS.map(r=>r.theta.toFixed(2)),yLabel:'Expectation Value',xLabel:'theta (rad)',height:320}))),
+    rfSection('Sweep results',_c(DataTable,{columns:cols,rows:SWEEP_ROWS,pageSize:100,csvName:'parameter_sweep.csv',defaultSort:{key:'idx',dir:'asc'}})));
+}
+function FullVQE(){
+  const conv=VQE_ENERGY.map((y,i)=>({x:i,y:y}));
+  const stats=[{label:'Minimum energy',value:'-1.117',tone:'tone-accent'},{label:'Iterations',value:'30'},{label:'Duration',value:'12.5s'}];
+  const params=VQE_PARAMS.map((v,i)=>({label:'params['+i+']',value:v.toFixed(3)}));
+  const cols=[
+    {key:'idx',label:'#',num:true,sortable:false},
+    {key:'energy',label:'Energy',num:true,fmt:v=>v.toFixed(3),tone:v=>v>=0?'cell-neg':'cell-pos'},
+    {key:'p0',label:'params[0]',num:true,fmt:v=>v.toFixed(2)},
+    {key:'p1',label:'params[1]',num:true,fmt:v=>v.toFixed(2)},
+    {key:'p2',label:'params[2]',num:true,fmt:v=>v.toFixed(2)},
+    {key:'p3',label:'params[3]',num:true,fmt:v=>v.toFixed(2)}];
+  return _c(ResultFullPage,{meta:VQE_META},
+    rfSection('Optimization result',_c(StatGrid,{items:stats,cols:3})),
+    rfSection('Optimal parameters',_c(StatGrid,{items:params,cols:4})),
+    rfSection('Energy convergence',rfCard(_c(AreaLineChart,{data:conv,xLabels:conv.map(d=>String(d.x)),yLabel:'Energy',xLabel:'Iteration',height:320}))),
+    rfSection('Optimization history',_c(DataTable,{columns:cols,rows:VQE_HIST,pageSize:100,csvName:'optimization_history.csv',defaultSort:{key:'energy',dir:'desc'}})));
+}
+function FullStateVector(){
+  const bars=SV_ROWS.map(r=>({label:r.bits,value:r.prob,phase:r.phase,tip:'|'+r.bits+'⟩ φ='+r.phase.toFixed(2)}));
+  const cols=[
+    {key:'idx',label:'#',num:true,sortable:false},
+    {key:'amp',label:'Amplitude',mono:true,sortable:false},
+    {key:'mag',label:'Magnitude',num:true,fmt:v=>v.toFixed(3)},
+    {key:'phase',label:'Phase',num:true,fmt:v=>v.toFixed(3)},
+    {key:'prob',label:'Probability',num:true,fmt:v=>v.toFixed(3)},
+    {key:'bits',label:'Bitstring',mono:true,sortable:false}];
+  const chart=_c('div',{className:'sv-chart-row'},_c(PhaseWheel),_c(CountBars,{data:bars,height:320,fitAll:true,colorPhase:true}));
+  return _c(ResultFullPage,{meta:SV_META},
+    rfSection('State vector',rfCard(chart)),
+    rfSection('Full state vector',_c(DataTable,{columns:cols,rows:SV_ROWS,pageSize:100,csvName:'state_vector.csv',defaultSort:{key:'prob',dir:'desc'}})));
+}
+
+/* ---- 5 glimpses (compact, responsive; shown in the split pane) ---- */
+function CountGlimpse(){const bars=SAMPLE_ROWS.map(r=>({label:r.xdec,value:r.count,tip:'v='+r.v}));
+  return _c('div',{className:'glimpse'},_c(CountBars,{data:bars,fill:true}));}
+function ScalarGlimpse(){return _c('div',{className:'glimpse glimpse-center'},
+  _c(ScalarHero,{formula:'⟨H⟩ = ⟨Z₀Z₁ + 0.5·X₀⟩',value:'-1.137',pm:'0.024',stats:[['Shots','1,000'],['Duration','1.2s'],['Backend','simulator']]}));}
+function SweepGlimpse(){const data=SWEEP_ROWS.map(r=>({x:r.theta,y:r.val}));
+  return _c('div',{className:'glimpse'},_c(AreaLineChart,{data:data,xLabels:SWEEP_ROWS.map(r=>r.theta.toFixed(1)),yLabel:'⟨H⟩ vs θ',fill:true}));}
+function VqeGlimpse(){const conv=VQE_ENERGY.map((y,i)=>({x:i,y:y}));
+  return _c('div',{className:'glimpse'},_c(AreaLineChart,{data:conv,yLabel:'Energy vs iteration',markers:false,fill:true}));}
+function SvGlimpse(){const bars=SV_ROWS.map(r=>({label:r.bits,value:r.prob,phase:r.phase,tip:'|'+r.bits+'⟩'}));
+  return _c('div',{className:'glimpse'},_c('div',{className:'sv-chart-row sv-fill'},_c(PhaseWheel),_c(CountBars,{data:bars,colorPhase:true,fill:true})));}
+
+const R5_RESULTS=[
+  {id:'sample',name:'Sample · measurement counts',backend:'simulator',glimpse:CountGlimpse,full:FullSample},
+  {id:'observe1',name:'Observe · expectation value',backend:'simulator',glimpse:ScalarGlimpse,full:FullObserveScalar},
+  {id:'observeN',name:'Observe · parameter sweep',backend:'simulator',glimpse:SweepGlimpse,full:FullSweep},
+  {id:'vqe',name:'Variational minimize · VQE',backend:'simulator',glimpse:VqeGlimpse,full:FullVQE},
+  {id:'statevec',name:'Calculate state vector',backend:'simulator_statevector',glimpse:SvGlimpse,full:FullStateVector},
+];
+
+/* ---- the "5 results" mosaic: Qmod / Qp / Results(picker+glimpse) ---- */
+function R5MosaicView({onFull,layout}){
+  const [rO,setRO]=useState(50),[rI,setRI]=useState(50),[sel,setSel]=useState(0);
+  const cur=R5_RESULTS[sel];
+  const codeBlock=(code)=>_c(CodeBlock,{code:code});
+  const fsBtn=(label,node,opts)=>_c(Tooltip,{label:'Fullscreen'},
+    _c(Button,{icon:true,size:'sm',variant:'ghost','aria-label':'Fullscreen '+label,
+      onClick:()=>onFull&&onFull(label,node,opts)},IcMax({s:15})));
+  const qmodPane=_c('div',{className:'vpane'},
+    _c('div',{className:'vpane-head'},IcCode({s:15}),_c('span',{className:'vpane-label'},'Qmod1'),
+      _c(Badge,{variant:'outline'},'Qmod model'),_c('div',{className:'grow'}),fsBtn('Qmod1',codeBlock(QMOD_PORTFOLIO))),
+    _c('div',{className:'vpane-body'},codeBlock(QMOD_PORTFOLIO)));
+  const qpPane=_c('div',{className:'vpane'},
+    _c('div',{className:'vpane-head'},IcChip({s:15}),_c('span',{className:'vpane-label'},'Qp1'),
+      _c(Badge,{variant:'outline'},'Quantum program'),_c('div',{className:'grow'}),fsBtn('Qp1',null,{circuit:true})),
+    _c('div',{className:'vpane-body'},_c(Circuit)));
+  const resPane=_c('div',{className:'vpane'},
+    _c('div',{className:'vpane-head'},IcFile({s:15}),_c('span',{className:'vpane-label'},'Results'),
+      _c('div',{className:'grow'}),
+      _c('div',{className:'res-picker'},_c(Select,{options:R5_RESULTS.map(r=>r.name),value:cur.name,
+        onChange:(name)=>{const i=R5_RESULTS.findIndex(r=>r.name===name);if(i>=0)setSel(i);}})),
+      fsBtn(cur.name,_c(cur.full),{bare:true,head:{title:'Results',sub:'Running on '+cur.backend}})),
+    _c('div',{className:'vpane-body'},_c(cur.glimpse)));
+  const S=(dir,ratio,setR,f,s)=>_c(Split,{dir:dir,ratio:ratio,setRatio:setR,first:f,second:s});
+  const A=qmodPane,B=qpPane,C=resPane;
+  let area;
+  if(layout==='top2') area=S('v',rO,setRO,S('h',rI,setRI,A,B),C);
+  else if(layout==='bottom2') area=S('v',rO,setRO,A,S('h',rI,setRI,B,C));
+  else if(layout==='left2') area=S('h',rO,setRO,S('v',rI,setRI,A,B),C);
+  else if(layout==='right2') area=S('h',rO,setRO,A,S('v',rI,setRI,B,C));
+  else if(layout==='rows3') area=S('v',rO,setRO,A,S('v',rI,setRI,B,C));
+  else area=S('h',rO,setRO,A,S('h',rI,setRI,B,C));
+  return _c('div',{className:'mosaic'},_c('div',{className:'mosaic-area'},area));
+}
+
+/* ---------------- results triptych: Qmod / Quantum program / Results, resizable panes ---------------- */
+function TriptychView(){
+  const ref=useRef();
+  const [b1,setB1]=useState(38),[b2,setB2]=useState(70),[rz,setRz]=useState(false);
+  const codeBlock=(code)=>React.createElement(CodeBlock,{code:code});
+  const head=(icon,label,badge)=>React.createElement('div',{className:'vpane-head'},icon({s:15}),
+    React.createElement('span',{className:'vpane-label'},label),
+    React.createElement(Badge,{variant:'outline'},badge));
+  const drag=(which)=>(e)=>{
+    e.preventDefault();setRz(true);
+    const rect=ref.current.getBoundingClientRect();
+    const move=(ev)=>{const y=(ev.touches?ev.touches[0].clientY:ev.clientY)-rect.top;
+      let p=(y/rect.height)*100;
+      if(which===1)setB1(Math.max(12,Math.min(b2-12,p))); else setB2(Math.max(b1+12,Math.min(88,p)));};
+    const up=()=>{setRz(false);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);};
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);
+  };
+  const rzEl=(which)=>React.createElement('div',{className:'vresizer',role:'separator','aria-orientation':'horizontal',
+    tabIndex:0,onPointerDown:drag(which),
+    onKeyDown:(e)=>{const d=e.key==='ArrowUp'?-3:e.key==='ArrowDown'?3:0;if(!d)return;e.preventDefault();
+      if(which===1)setB1(v=>Math.max(12,Math.min(b2-12,v+d)));else setB2(v=>Math.max(b1+12,Math.min(88,v+d)));}},
+    React.createElement('div',{className:'vgrip'}));
+  return React.createElement('div',{className:cx('canvas-vsplit',rz&&'resizing'),ref:ref},
+    React.createElement('div',{className:'vpane',style:{height:b1+'%'}},
+      head(IcCode,'Qmod1','Qmod model'),
+      React.createElement('div',{className:'vpane-body'},codeBlock(QMOD_PORTFOLIO))),
+    rzEl(1),
+    React.createElement('div',{className:'vpane',style:{height:(b2-b1)+'%'}},
+      head(IcChip,'Qp1','Quantum program'),
+      React.createElement('div',{className:'vpane-body'},React.createElement(Circuit))),
+    rzEl(2),
+    React.createElement('div',{className:'vpane',style:{flex:'1 1 0',minHeight:0}},
+      head(IcFile,'Results','Results snippet'),
+      React.createElement('div',{className:'vpane-body'},codeBlock(RESULTS_CODE))));
+}
+/* report artifact — an isolated HTML doc; we push the app theme in via postMessage */
+function ReportFrame({src,dark,title}){
+  const ref=useRef();
+  const theme=dark?'dark':'light';
+  const post=()=>{try{ref.current&&ref.current.contentWindow&&ref.current.contentWindow.postMessage({type:'theme',theme:theme},'*');}catch(e){}};
+  useEffect(post,[theme]);
+  return React.createElement('iframe',{ref:ref,className:'report-frame',src:src,title:title||'Report',onLoad:post});
+}
+function Canvas({artifacts,view,setView,onRemove,onRename,onClose,onReport,dark}){
+  const [zoom,setZoom]=useState(100);
+  const [topPct,setTopPct]=useState(46);     // vertical split: top-pane height %
+  const [vresizing,setVResizing]=useState(false);
+  const [full,setFull]=useState(null);       // {title,node} → fullscreen a container
+  const [circCollapsed,setCircCollapsed]=useState(false);  // circuit: collapsed (top-level blocks) vs expanded (per-qubit)
+  const [infoOpen,setInfoOpen]=useState(true);   // fullscreen circuit: details side panel open
+  const [colTop,setColTop]=useState(false);  // split panes collapsed
+  const [colBot,setColBot]=useState(false);
+  const [synthOpen,setSynthOpen]=useState(false);   // advanced synthesis drawer
+  const [mLayout,setMLayout]=useState('top2');       // mosaic layout preset
+  const [execOpen,setExecOpen]=useState(false);      // execution config drawer
+  const [qfStage,setQfStage]=useState('qmod');       // Qmod flow: qmod → qprog → results
+  const [qf2,setQf2]=useState('rows');               // Qmod flow qprog split: rows (stacked) | cols (side by side)
+  const [qfBusy,setQfBusy]=useState(null);           // 'synth' | 'exec'
+  const [qfR1,setQfR1]=useState(52);
+  const [fsZoom,setFsZoom]=useState(100);            // fullscreen zoom %
+  const [fsVar,setFsVar]=useState(false);            // fullscreen "Variable View" toggle
+  const vref=useRef();
+  const [toast,setToast]=useState(null);
+  const toastRef=useRef();
+  const showToast=(t)=>{setToast(t);clearTimeout(toastRef.current);toastRef.current=setTimeout(()=>setToast(null),5000);};
+  const qfSynth=()=>{setSynthOpen(false);if(qfBusy)return;setQfBusy('synth');setTimeout(()=>{setQfBusy(null);setQfStage('qprog');},1400);};
+  const qfExec=()=>{setExecOpen(false);if(qfBusy)return;setQfBusy('exec');
+    showToast({title:'Execution started',desc:'Running on NVIDIA Statevector Simulator (GPU)'});
+    setTimeout(()=>{setQfBusy(null);setQfStage('results');},1700);};
+  useEffect(()=>{if(!full)return;
+    setFsZoom(100);setFsVar(false);setInfoOpen(true);
+    const k=(e)=>{if(e.key==='Escape')setFull(null);};
+    window.addEventListener('keydown',k);return ()=>window.removeEventListener('keydown',k);},[full]);
+  const codeText=(code)=>(code||[]).map(l=>{let s='';for(let i=0;i<l.length;i+=2)s+=l[i];return s;}).join('\n');
+  const copyArtifact=(a)=>{const t=a.type==='code'?codeText(a.code):a.label;try{navigator.clipboard&&navigator.clipboard.writeText(t);}catch(e){}};
+  const badgeOf=(a)=>a.badge||(a.type==='qprog'?'Quantum program':(/\.qmod$/.test(a.label)?'Qmod model':'Code'));
+  const closeBtn=React.createElement(Tooltip,{label:'Close canvas'},
+    React.createElement(Button,{icon:true,size:'sm',onClick:onClose,'aria-label':'Close canvas'},IcX({s:16})));
+  const iconBtn=(label,ic,on)=>React.createElement(Tooltip,{label:label},React.createElement(Button,{icon:true,size:'sm',onClick:on,'aria-label':label},ic));
+  const fsBtn=(title,node,bare,circuit)=>React.createElement(Tooltip,{label:'Fullscreen'},
+    React.createElement(Button,{icon:true,size:'sm','aria-label':'Fullscreen '+title,onClick:()=>setFull({title:title,node:node,bare:bare,circuit:circuit})},IcMax({s:16})));
+  const fsIcon=(label,ic,on)=>React.createElement(Tooltip,{key:label,label:label},
+    React.createElement('button',{className:'fs-tb-icon',onClick:on,'aria-label':label},ic));
+  const fsSep=(k)=>React.createElement('span',{key:'sep'+k,className:'fs-tb-sep'});
+  // shown in the paired Qmod+Qp split — the program already exists, so Synthesize is a secondary (re-run) action
+  const synthSplit=React.createElement('div',{className:cx('split-btn','secondary')},
+    React.createElement('button',{className:'sb-main',onClick:()=>setSynthOpen(true)},IcChip({s:14}),'Synthesize'),
+    React.createElement('span',{className:'sb-sep'}),
+    React.createElement('button',{className:'sb-chev','aria-label':'Advanced synthesis options',onClick:()=>setSynthOpen(true)},IcChevD({s:15})));
+  const zoomCtl=React.createElement(React.Fragment,null,
+    iconBtn('Zoom out',IcZout({s:16}),()=>setZoom(z=>Math.max(50,z-10))),
+    React.createElement('span',{className:'mono',style:{fontSize:12,color:'var(--muted-foreground)',minWidth:44,textAlign:'center'}},zoom+' %'),
+    iconBtn('Zoom in',IcZin({s:16}),()=>setZoom(z=>Math.min(200,z+10))));
+  const CodeView=(a)=>React.createElement(CodeBlock,{code:a.code});
+  const CircuitView=()=>React.createElement('div',{style:{transform:'scale('+zoom/100+')',transformOrigin:'center top'}},React.createElement(Circuit,{collapsed:circCollapsed}));
+  // Qmod flow — staged: qmod → qprog (split) → results (mosaic, = Result 4)
+  const flowHead=(icon,label,badge,right)=>React.createElement('div',{className:'vpane-head'},icon({s:15}),
+    React.createElement('span',{className:'vpane-label'},label),
+    React.createElement(Badge,{variant:'outline'},badge),
+    React.createElement('div',{className:'grow'}),right);
+  const qflowBody=()=>{
+    if(qfStage==='results') return React.createElement(MosaicView,{onFull:(t,node,opts)=>setFull(Object.assign({title:t,node:node},opts||{})),layout:mLayout,onReport:onReport,onSynth:()=>setSynthOpen(true),onExec:()=>setExecOpen(true)});
+    // once a quantum program exists (qprog stage), Synthesize steps down to a secondary action — Execute becomes primary
+    const synthSplit=React.createElement('div',{className:cx('split-btn',qfStage!=='qmod'&&'secondary',qfBusy&&'disabled')},
+      React.createElement('button',{className:'sb-main',disabled:!!qfBusy,onClick:qfSynth},IcChip({s:14}),'Synthesize'),
+      React.createElement('span',{className:'sb-sep'}),
+      React.createElement('button',{className:'sb-chev',disabled:!!qfBusy,'aria-label':'Advanced synthesis options',onClick:()=>setSynthOpen(true)},IcChevD({s:15})));
+    const qmodPane=React.createElement('div',{className:'vpane'},
+      flowHead(IcCode,'Qmod1','Qmod model',React.createElement(React.Fragment,null,synthSplit,fsBtn('Qmod1',CodeView({code:QMOD_PORTFOLIO}),true))),
+      React.createElement('div',{className:'vpane-body'},CodeView({code:QMOD_PORTFOLIO})));
+    if(qfStage==='qmod') return React.createElement('div',{className:'qflow-area'},qmodPane);
+    const execBtn=React.createElement('div',{className:cx('split-btn',qfBusy&&'disabled')},
+      React.createElement('button',{className:'sb-main',disabled:!!qfBusy,onClick:qfExec},IcPlay({s:14}),'Execute'),
+      React.createElement('span',{className:'sb-sep'}),
+      React.createElement('button',{className:'sb-chev',disabled:!!qfBusy,'aria-label':'Execution options',onClick:()=>setExecOpen(true)},IcChevD({s:15})));
+    const qprogPane=React.createElement('div',{className:'vpane'},
+      flowHead(IcChip,'Qp1','Quantum program',React.createElement(React.Fragment,null,zoomCtl,React.createElement('span',{className:'head-sep'}),execBtn,fsBtn('Qp1',CircuitView(),false,true))),
+      React.createElement('div',{className:'vpane-body'},CircuitView()));
+    return React.createElement('div',{className:'qflow-area'},
+      React.createElement(Split,{dir:qf2==='cols'?'h':'v',ratio:qfR1,setRatio:setQfR1,first:qmodPane,second:qprogPane}));
+  };
+  const bodyOf=(a)=>a.render==='qflow'?qflowBody():a.render==='report'?React.createElement(ReportFrame,{src:a.src,dark:dark,title:a.label}):a.render==='mosaic'?React.createElement(MosaicView,{onFull:(t,node,opts)=>setFull(Object.assign({title:t,node:node},opts||{})),layout:mLayout,onReport:onReport,onSynth:()=>setSynthOpen(true),onExec:()=>setExecOpen(true)}):a.render==='triptych'?React.createElement(TriptychView):a.render==='r5'?React.createElement(R5MosaicView,{onFull:(t,node,opts)=>setFull(Object.assign({title:t,node:node},opts||{})),layout:mLayout}):a.render==='results'?React.createElement(ResultsView,{onFull:(t,node)=>setFull({title:t,node:node})}):a.render==='jobs'?React.createElement(JobsDashboard):a.type==='qprog'?CircuitView():CodeView(a);
+
+  /* ---------- empty ---------- */
+  if(!artifacts.length) return React.createElement('section',{className:'canvas'},
+    React.createElement('div',{className:'canvas-head'},
+      React.createElement('span',{className:'canvas-head-title'},'Artifacts'),
+      React.createElement('div',{className:'grow'}),closeBtn),
+    React.createElement('div',{className:'canvas-body'},
+      React.createElement('div',{className:'empty'},
+        React.createElement('div',{className:'em-media'},IcCode({s:20})),
+        React.createElement('div',{className:'em-title'},'Nothing to show yet'),
+        React.createElement('div',{className:'em-desc'},'Artifacts the assistant creates — code and quantum programs — collect here.'))));
+
+  const art=artifacts.find(a=>a.id===view)||artifacts[0];
+  const vizArt=art.viz&&artifacts.find(a=>a.id===art.viz);   // paired visualization → split canvas
+
+  /* ---------- draggable horizontal divider (vertical split) ---------- */
+  const startVDrag=(e)=>{
+    e.preventDefault(); setVResizing(true);
+    const rect=vref.current.getBoundingClientRect();
+    const move=(ev)=>{const y=(ev.touches?ev.touches[0].clientY:ev.clientY)-rect.top;
+      let p=(y/rect.height)*100; p=Math.max(20,Math.min(80,p)); setTopPct(p);};
+    const up=()=>{setVResizing(false);
+      window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);};
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);
+  };
+  const vKey=(e)=>{
+    if(e.key==='ArrowUp'){setTopPct(p=>Math.max(20,p-3));e.preventDefault();}
+    else if(e.key==='ArrowDown'){setTopPct(p=>Math.min(80,p+3));e.preventDefault();}
+    else if(e.key==='Home'){setTopPct(25);} else if(e.key==='End'){setTopPct(70);}
+  };
+
+  const paneHead=(a,rightEls,collapsed,onToggle)=>React.createElement('div',{className:'vpane-head'},
+    (a.type==='qprog'?IcChip:IcCode)({s:15}),
+    React.createElement('span',{className:'vpane-label'},a.label),
+    React.createElement(Badge,{variant:'outline'},badgeOf(a)),
+    React.createElement('div',{className:'grow'}),rightEls,
+    iconBtn(collapsed?'Expand':'Collapse',(collapsed?IcChevR:IcChevD)({s:16}),onToggle));
+
+  return React.createElement(React.Fragment,null,
+    React.createElement('section',{className:'canvas'},
+    React.createElement('div',{className:'canvas-head'},
+      React.createElement(ArtifactSwitcher,{artifacts:artifacts,current:art,setView:setView,badgeOf:badgeOf,onRemove:onRemove,onRename:onRename}),
+      React.createElement('div',{className:'grow'}),
+      (art.render==='mosaic'||art.render==='r5'||(art.render==='qflow'&&qfStage==='results'))&&React.createElement(LayoutSheet,{layout:mLayout,setLayout:setMLayout}),
+      (art.render==='qflow'&&qfStage==='qprog')&&React.createElement(LayoutSheet,{layout:qf2,setLayout:setQf2,glyphs:LAY2_GLYPH,names:LAY2_NAME}),
+      (!vizArt&&art.type==='qprog')&&React.createElement(React.Fragment,null,zoomCtl,React.createElement('span',{className:'head-sep'})),
+      iconBtn('Copy',IcCopy({s:16}),()=>copyArtifact(art)),
+      iconBtn('Download',IcDownload({s:16})),
+      fsBtn(art.label,bodyOf(art),art.render==='report'||(art.render==='qflow'&&qfStage==='qmod'),art.type==='qprog'),
+      closeBtn),
+    vizArt
+      ?React.createElement('div',{className:cx('canvas-vsplit',vresizing&&'resizing'),ref:vref},
+         React.createElement('div',{className:cx('vpane',colTop&&'collapsed'),
+             style:colTop?{flex:'0 0 auto'}:(colBot?{flex:'1 1 0',minHeight:0}:{height:topPct+'%'})},
+           paneHead(art,React.createElement(React.Fragment,null,art.type!=='qprog'&&synthSplit,iconBtn('Copy',IcCopy({s:15}),()=>copyArtifact(art)),fsBtn(art.label,bodyOf(art),false,art.type==='qprog')),colTop,()=>setColTop(v=>!v)),
+           !colTop&&React.createElement('div',{className:'vpane-body'},bodyOf(art))),
+         (!colTop&&!colBot)&&React.createElement('div',{className:'vresizer',role:'separator','aria-orientation':'horizontal',
+           'aria-label':'Resize panels','aria-valuemin':20,'aria-valuemax':80,'aria-valuenow':Math.round(topPct),
+           tabIndex:0,onPointerDown:startVDrag,onKeyDown:vKey,onDoubleClick:()=>setTopPct(46)},
+           React.createElement('div',{className:'vgrip'})),
+         React.createElement('div',{className:cx('vpane',colBot&&'collapsed'),style:colBot?{flex:'0 0 auto'}:{flex:'1 1 0',minHeight:0}},
+           paneHead(vizArt,React.createElement(React.Fragment,null,zoomCtl,fsBtn(vizArt.label,bodyOf(vizArt),false,vizArt.type==='qprog')),colBot,()=>setColBot(v=>!v)),
+           !colBot&&React.createElement('div',{className:'vpane-body'},bodyOf(vizArt))))
+      :React.createElement('div',{className:'canvas-body'},bodyOf(art),
+        art.render==='qflow'&&qfBusy&&React.createElement('div',{className:'qflow-loader'},React.createElement(Spinner,{s:20}),
+          React.createElement('span',null,qfBusy==='synth'?'Synthesizing circuit…':'Executing on NVIDIA Statevector Simulator (GPU)…')))),
+    full&&React.createElement('div',{className:'fs-overlay',role:'dialog','aria-modal':true,'aria-label':full.title},
+      React.createElement('div',{className:'fs-head'},
+        full.head
+          ?React.createElement('div',{className:'fs-head-block'},
+             React.createElement('div',{className:'fs-head-title2'},full.head.title),
+             React.createElement('div',{className:'fs-head-sub'},full.head.sub))
+          :React.createElement('span',{className:'fs-title'},full.title),
+        React.createElement('div',{className:'grow'}),
+        full.circuit&&React.createElement(Tooltip,{label:infoOpen?'Hide details':'Show details'},
+          React.createElement(Button,{icon:true,size:'sm',className:cx(infoOpen&&'active'),onClick:()=>setInfoOpen(v=>!v),
+            'aria-pressed':infoOpen,'aria-label':'Toggle details panel'},IcInfo({s:16}))),
+        full.circuit&&React.createElement('span',{className:'head-sep'}),
+        React.createElement(Tooltip,{label:'Exit fullscreen'},
+          React.createElement(Button,{icon:true,size:'sm',onClick:()=>setFull(null),'aria-label':'Exit fullscreen'},IcMin({s:16})))),
+      React.createElement('div',{className:'fs-body'},
+        React.createElement('div',{className:'fs-stage'},
+          full.bare?full.node:React.createElement('div',{className:'fs-scale',style:{transform:'scale('+(fsZoom/100)+')',transformOrigin:'top center'}},
+            full.circuit?React.createElement(Circuit,{collapsed:circCollapsed}):full.node)),
+        full.circuit&&infoOpen&&React.createElement(InfoPanel,{onCollapse:()=>setInfoOpen(false)})),
+      !full.bare&&React.createElement('div',{className:'fs-toolbar'},
+        React.createElement('button',{className:'fs-tb-toggle',role:'switch','aria-checked':fsVar,onClick:()=>setFsVar(v=>!v)},
+          React.createElement('span',{className:cx('fs-sw',fsVar&&'on')},React.createElement('span',{className:'fs-sw-knob'})),
+          React.createElement('span',null,'Variables View')),
+        fsSep(1),
+        full.circuit
+          ?React.createElement(Tooltip,{key:'det',label:infoOpen?'Hide details':'Show details'},
+             React.createElement('button',{className:cx('fs-tb-icon',infoOpen&&'active'),onClick:()=>setInfoOpen(v=>!v),
+               'aria-pressed':infoOpen,'aria-label':'Toggle details panel'},IcInfo({s:16})))
+          :fsIcon('Details',IcInfo({s:16})),
+        fsIcon('Search',IcSearch({s:16})),
+        fsSep(2),
+        full.circuit&&React.createElement('button',{key:'coll',className:cx('fs-tb-btn',circCollapsed&&'active'),
+          onClick:()=>setCircCollapsed(v=>!v),'aria-pressed':circCollapsed,
+          title:circCollapsed?'Expand to per-qubit view':'Collapse to top-level blocks'},
+          (circCollapsed?IcMax:IcMin)({s:15}),circCollapsed?'Expand':'Collapse'),
+        fsIcon('Minimap',IcMap({s:16})),
+        fsSep(3),
+        fsIcon('Fit width',IcFitW({s:16}),()=>setFsZoom(100)),
+        fsIcon('Zoom out',IcZout({s:16}),()=>setFsZoom(z=>Math.max(40,z-10))),
+        React.createElement('span',{className:'fs-tb-pct'},fsZoom),
+        fsIcon('Zoom in',IcZin({s:16}),()=>setFsZoom(z=>Math.min(200,z+10))),
+        fsSep(4),
+        fsIcon('Download',IcDownload({s:16})),
+        fsIcon('Share',IcShare({s:16})))),
+    synthOpen&&React.createElement(SynthDrawer,{onClose:()=>setSynthOpen(false),onSynthesize:art.render==='qflow'?qfSynth:undefined}),
+    execOpen&&React.createElement(ExecuteDrawer,{onClose:()=>setExecOpen(false),onRun:qfExec}),
+    toast&&React.createElement('div',{className:'toast',role:'status'},
+      React.createElement('span',{className:'toast-ic'},IcCheck({s:16})),
+      React.createElement('div',{className:'toast-body'},
+        React.createElement('div',{className:'toast-title'},toast.title),
+        toast.desc&&React.createElement('div',{className:'toast-desc'},toast.desc)),
+      React.createElement('button',{className:'toast-x','aria-label':'Dismiss',onClick:()=>setToast(null)},IcX({s:14}))));
+}
+
+/* ---------------- chat ---------------- */
+function Composer({onSend,centered,placeholder,autoFocus}){
+  const [v,setV]=useState(''); const [foc,setFoc]=useState(false); const ta=useRef();
+  useEffect(()=>{if(autoFocus&&ta.current)ta.current.focus();},[autoFocus]);
+  const grow=e=>{e.target.style.height='auto';e.target.style.height=Math.min(160,e.target.scrollHeight)+'px';};
+  const send=()=>{if(v.trim()){onSend(v.trim());setV('');if(ta.current){ta.current.style.height='auto';}}};
+  return React.createElement('div',{className:cx('composer-wrap',centered&&'centered')},
+    React.createElement('div',{className:'composer-inner'},
+      React.createElement('div',{className:cx('composer','grad',foc&&'on')},
+        React.createElement('div',{className:'composer-row'},
+          React.createElement(Tooltip,{label:'Attach'},React.createElement(Button,{icon:true,size:'sm',variant:'ghost','aria-label':'Attach'},IcPlus({s:18}))),
+          React.createElement('textarea',{ref:ta,rows:1,value:v,placeholder:placeholder||'Enter your vision — describe a circuit, algorithm, or problem…',
+            onChange:e=>{setV(e.target.value);grow(e);},onFocus:()=>setFoc(true),onBlur:()=>setFoc(false),
+            onKeyDown:e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}},'aria-label':'Message Classiq AI'}),
+          React.createElement(Button,{icon:true,size:'sm',variant:'primary',className:'send-btn',onClick:send,disabled:!v.trim(),'aria-label':'Send'},IcArrowRight({s:18}))))));
+}
+
+const CONVO=[
+  {role:'user',text:'I want to learn about quantum chemistry, show me an easy example'},
+  {role:'ai',kind:'chem'},
+  {role:'user',text:'make the VQE on a larger problem'},
+  {role:'ai',kind:'lih'},
+];
+function AiChem(){
+  return React.createElement('div',{className:'msg-ai'},
+    React.createElement('p',{className:'lead'},"Great — let's build a beginner-friendly VQE (Variational Quantum Eigensolver) for the ground-state energy of the H₂ molecule, the “hello world” of quantum chemistry."),
+    React.createElement('h3',null,IcSpark({s:18}),'How it works'),
+    React.createElement('p',null,'The H₂ molecule maps to a ',React.createElement('strong',null,'Pauli Hamiltonian'),' on 4 qubits (one per spin-orbital):'),
+    React.createElement('div',{className:'eqn'},'H = c₀·I + c₁·Z₀ + c₂·Z₁ + c₃·Z₀Z₁ + c₄·(X₀X₁Y₂Y₃ + …)'),
+    React.createElement('p',{style:{marginTop:10}},'A parameterized ',React.createElement('code',null,'ansatz'),' prepares a trial state; a classical optimizer minimizes ⟨ψ|H|ψ⟩ toward the ground state.'),
+    React.createElement('details',{className:'reason',style:{margin:'4px 0 12px'}},
+      React.createElement('summary',null,IcBulb({s:15}),'Reasoning'),
+      React.createElement('div',{className:'rbody'},'Chose a Hardware-Efficient Ansatz (RY + CX) for 4 qubits — shallow enough for near-term hardware, expressive enough to reach the H₂ ground state within chemical accuracy.')),
+    React.createElement('div',{className:'status',style:{marginBottom:12}},React.createElement('span',{style:{color:'var(--primary)'}},IcCheck({s:16})),React.createElement('span',null,'Model valid — 4 qubits, 8 parameters')),
+    React.createElement('div',{className:'item card'},
+      React.createElement('div',{className:'item-media'},IcCode({s:16})),
+      React.createElement('div',{className:'item-content'},
+        React.createElement('div',{className:'item-title'},'ansatz.py'),
+        React.createElement('div',{className:'item-desc'},'H₂ VQE ansatz · Qmod')),
+      React.createElement('div',{className:'item-actions'},
+        React.createElement(Button,{size:'sm',variant:'ghost',icon:true,'aria-label':'Download'},IcDownload({s:15})),
+        React.createElement(Button,{size:'sm',variant:'ghost',icon:true,'aria-label':'Open in canvas'},IcChevR({s:16})))));
+}
+function AiLih(){
+  return React.createElement('div',{className:'msg-ai'},
+    React.createElement('p',null,"I'll scale the VQE up to ",React.createElement('strong',null,'LiH (Lithium Hydride)'),' — more qubits, deeper ansatz, and a richer active-space Hamiltonian for more expressibility.'),
+    React.createElement('details',{className:'reason',style:{margin:'4px 0 12px'}},
+      React.createElement('summary',null,IcBulb({s:15}),'Reasoning'),
+      React.createElement('div',{className:'rbody'},'Froze the core and removed virtual orbitals → 6 active spin-orbitals (6 qubits). Bumped to 3 ansatz layers with full circular entanglement to capture stronger correlation in LiH.')),
+    React.createElement('div',{className:'status',style:{marginBottom:12}},React.createElement(Spinner,{s:15}),React.createElement('span',{style:{color:'var(--muted-foreground)'}},'Synthesizing circuit — 6 qubits · 3 layers · 18 parameters…')),
+    React.createElement('div',{className:'item card'},
+      React.createElement('div',{className:'item-media'},IcChip({s:16})),
+      React.createElement('div',{className:'item-content'},
+        React.createElement('div',{className:'item-title'},'Quantum Program'),
+        React.createElement('div',{className:'item-desc'},'LiH · width 6 · depth 42')),
+      React.createElement('div',{className:'item-actions'},
+        React.createElement(Badge,{variant:'outline'},'2/2'),
+        React.createElement(Button,{size:'sm',variant:'ghost',icon:true,'aria-label':'Open in canvas'},IcChevR({s:16})))));
+}
+
+function ToolCall({n,label}){
+  const [open,setOpen]=useState(false);
+  return React.createElement('div',null,
+    React.createElement('button',{className:'tool-call',onClick:()=>setOpen(o=>!o),'aria-expanded':open},
+      open?IcChevD({s:14}):IcChevR({s:14}),(n||'1')+' tool call'+((n>1)?'s':'')),
+    open&&React.createElement('div',{style:{fontSize:12.5,color:'var(--muted-foreground)',padding:'6px 0 2px 22px'}},label||'create_model · synthesize'));
+}
+
+/* ---------------- start options (empty state) ---------------- */
+const OPTIONS=[
+  {id:'solve',title:'I have a problem to solve',sub:"Tell QE what you're working on",icon:IcTarget,seed:'I have a problem to solve'},
+  {id:'define',title:'Help me define a problem',sub:'Surface a problem from your field',icon:IcCompass,seed:'Help me define a problem'},
+  {id:'how',title:'Show me how it works',sub:'Walk through a full example',icon:IcPlay,seed:'Show me how it works'},
+];
+
+/* ---------------- problem-framing script ---------------- */
+const FRAME_STEPS=[
+  {label:'Domain',q:'What kind of problem are you working on?',
+   options:['Optimization','Chemistry & materials','Machine learning','Search / unstructured']},
+  {label:'Objective',q:'What outcome matters most?',
+   options:['Find the best solution','Speed at scale','Higher accuracy','Test feasibility']},
+  {label:'Scale',q:'Roughly how large is it?',
+   options:['Small (≤10 variables)','Medium (10–30)','Large (30+)','Not sure yet']},
+];
+
+/* ---------------- rotating headline ---------------- */
+const HEADLINES=[
+  'Turn your idea into a quantum solution.',
+  'From idea to quantum code.',
+  "Imagine it. We'll build it.",
+  'Your next quantum breakthrough starts here.',
+];
+function RotatingHeadline({items,interval}){
+  const [i,setI]=useState(0); const [show,setShow]=useState(true);
+  useEffect(()=>{
+    const id=setInterval(()=>{
+      setShow(false);
+      setTimeout(()=>{setI(x=>(x+1)%items.length);setShow(true);},420);
+    },interval||5000);
+    return ()=>clearInterval(id);
+  },[]);
+  return React.createElement('h1',{className:cx('rotating',show&&'in'),'aria-live':'polite'},items[i]);
+}
+
+/* ---------------- profile settings modal ----------------
+   NOTE: Dialog is NOT in the Classiq shadcn kit (flagged gap). Recomposed here from
+   allowed primitives — Input, Avatar, Separator, Button — inside a plain overlay. */
+function ProfileSettingsModal({onClose}){
+  useEffect(()=>{
+    const onKey=(e)=>{if(e.key==='Escape')onClose();};
+    window.addEventListener('keydown',onKey);
+    return ()=>window.removeEventListener('keydown',onKey);
+  },[]);
+  const field=(label,val,plain)=>React.createElement('div',{className:'field-row'},
+    React.createElement('label',{className:'field-label'},label),
+    React.createElement('input',{className:cx('input',plain&&'plain'),defaultValue:val,readOnly:plain,spellCheck:false}));
+  return React.createElement('div',{className:'modal-scrim',onClick:onClose,role:'presentation'},
+    React.createElement('div',{className:'dialog',role:'dialog','aria-modal':true,'aria-label':'Profile settings',
+      onClick:(e)=>e.stopPropagation()},
+      React.createElement('div',{className:'dialog-head'},
+        React.createElement('div',{className:'dialog-titlerow'},
+          React.createElement('h2',{className:'dialog-title'},'Profile settings'),
+          React.createElement(Button,{icon:true,size:'sm',variant:'ghost',onClick:onClose,'aria-label':'Close'},IcX({s:16}))),
+        React.createElement('p',{className:'dialog-desc'},'Manage your account details and how you appear across Classiq.')),
+      React.createElement(Separator),
+      React.createElement('div',{className:'userinfo'},
+        React.createElement('div',{className:'userinfo-ava'},
+          React.createElement('div',{className:'avatar avatar-lg'},'UN'),
+          React.createElement('button',{className:'avatar-edit'},'Edit')),
+        React.createElement('div',{className:'fields'},
+          field('Full name','User Name'),
+          field('Email','user@company.com',true),
+          field('Country','United States'),
+          field('Company name','Company'),
+          field('Role','Designer'))),
+      React.createElement(Separator),
+      React.createElement('div',null,
+        React.createElement('p',{className:'terms-title'},'Terms of Service and Privacy Policy'),
+        React.createElement('p',{className:'terms-body'},'Agreed to the Terms of Service and Privacy Policy. Additionally, agreed and warrant that my account on the Classiq Platform will only be used by me personally, for my own personal use, and not for any commercial or business purpose.')),
+      React.createElement(Separator),
+      React.createElement('div',null,
+        React.createElement(Button,{variant:'destructive-outline'},'Delete account'))));
+}
+
+/* ---------------- confirmation alert dialog ----------------
+   NOTE: Alert Dialog is NOT in the Classiq kit (flagged gap) — recomposed from Button. */
+function ConfirmModal({title,desc,confirmLabel,destructive,onConfirm,onCancel}){
+  useEffect(()=>{
+    const onKey=(e)=>{if(e.key==='Escape')onCancel();};
+    window.addEventListener('keydown',onKey);
+    return ()=>window.removeEventListener('keydown',onKey);
+  },[]);
+  return React.createElement('div',{className:'modal-scrim',onClick:onCancel,role:'presentation'},
+    React.createElement('div',{className:'dialog dialog-sm',role:'alertdialog','aria-modal':true,'aria-label':title,
+      onClick:(e)=>e.stopPropagation()},
+      React.createElement('div',{className:'dialog-head'},
+        React.createElement('h2',{className:'dialog-title'},title),
+        React.createElement('p',{className:'dialog-desc'},desc)),
+      React.createElement('div',{className:'dialog-foot'},
+        React.createElement(Button,{variant:'outline',size:'sm',onClick:onCancel},'Cancel'),
+        React.createElement(Button,{variant:destructive?'destructive':'primary',size:'sm',onClick:onConfirm},confirmLabel||'Confirm'))));
+}
+
+/* ---------------- app ---------------- */
+function App(){
+  const [dark,setDark]=useState(true);
+  const [settingsOpen,setSettingsOpen]=useState(false);
+  const [pendingRemove,setPendingRemove]=useState(null);   // artifact id awaiting delete confirmation
+  const [sidebar,setSidebar]=useState(true);
+  const [active,setActive]=useState(null);        // active recent
+  const [started,setStarted]=useState(false);     // default = New Session (greeting)
+  const [canvasOpen,setCanvasOpen]=useState(false);
+  const [chatCollapsed,setChatCollapsed]=useState(false);   // collapse chat → canvas full width
+  const [chatBasis,setChatBasis]=useState(35);    // % width of chat in split (clamped 15–35)
+  const [msgs,setMsgs]=useState([]);
+  const [artifacts,setArtifacts]=useState([]);
+  const [view,setView]=useState('list');   // 'list' = artifact list; else the open artifact id
+  const [frameStep,setFrameStep]=useState(-1);   // -1 = not framing; else index into FRAME_STEPS
+  const [answers,setAnswers]=useState([]);
+  const [recents,setRecents]=useState(RECENTS);   // empty until a session is created
+  const splitRef=useRef(); const scrollRef=useRef();
+
+  useEffect(()=>{document.body.className=dark?'dark':'light';},[dark]);
+  useEffect(()=>{if(scrollRef.current)scrollRef.current.scrollTop=scrollRef.current.scrollHeight;},[msgs,started]);
+
+  /* ---- draggable resizer ---- */
+  const [resizing,setResizing]=useState(false);
+  const startDrag=useCallback((e)=>{
+    e.preventDefault(); setResizing(true);
+    const rect=splitRef.current.getBoundingClientRect();
+    const move=(ev)=>{
+      const x=(ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left;
+      let pct=(x/rect.width)*100; pct=Math.max(15,Math.min(35,pct)); setChatBasis(pct);
+    };
+    const up=()=>{setResizing(false);
+      window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);};
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);
+  },[]);
+  const keyResize=(e)=>{
+    if(e.key==='ArrowLeft'){setChatBasis(b=>Math.max(15,b-2));e.preventDefault();}
+    else if(e.key==='ArrowRight'){setChatBasis(b=>Math.min(35,b+2));e.preventDefault();}
+    else if(e.key==='Home'){setChatBasis(15);} else if(e.key==='End'){setChatBasis(35);}
+    else if(e.key==='Enter'){setChatBasis(35);}
+  };
+
+  const newSession=()=>{setStarted(false);setMsgs([]);setActive(null);setCanvasOpen(false);setArtifacts([]);};
+  const openRecent=(id)=>{setActive(id);setStarted(true);setMsgs(CONVO);setArtifacts(MAIN_ARTIFACTS);setView('qflow');setCanvasOpen(true);};
+  // Typing in the main AI input answers the current framing question, or starts framing.
+  const send=(text)=>{ if(frameStep>=0) answerFrame(text); else frameStart(text); };
+
+  /* ---- flow: 1) AI frames the problem (ask questions; type or pick) 2) generate Qmod 3) view circuit ---- */
+  const frameStart=(seed)=>{
+    // creating a session → add it to Recent (this is the first time anything appears there)
+    const id='s'+Date.now();
+    const title=(seed&&seed.trim())||'New session';
+    setRecents(r=>[{id,title,when:'Today'},...r]);
+    // framing stays in the full-width main chat; the split opens only when a Qmod exists
+    setStarted(true);setActive(id);setCanvasOpen(false);setArtifacts([]);
+    setAnswers([]);setFrameStep(0);
+    setMsgs([{role:'user',text:seed||'I have a problem to solve'},{role:'ai',kind:'frameq',step:0}]);
+  };
+  const answerFrame=(text)=>{
+    if(frameStep<0)return;
+    const next=frameStep+1;
+    setAnswers(a=>[...a,text]);
+    if(next<FRAME_STEPS.length){
+      setFrameStep(next);
+      setMsgs(m=>[...m,{role:'user',text},{role:'ai',kind:'frameq',step:next}]);
+    }else{
+      setFrameStep(-1);
+      setMsgs(m=>[...m,{role:'user',text},{role:'ai',kind:'framed'},{role:'ai',kind:'qmod'}]);
+      setArtifacts(MAIN_ARTIFACTS);
+      setView('qflow');setCanvasOpen(true);   // Qmod flow created → the main staged flow, opened in the canvas
+    }
+  };
+  const [synthing,setSynthing]=useState(false);
+  const synthesize=()=>{
+    if(synthing)return; setSynthing(true);
+    setMsgs(m=>[...m,{role:'ai',kind:'synthing'}]);
+    setTimeout(()=>{
+      // the quantum program lives inside the Qmod flow — open it rather than adding a stray artifact
+      setView('qflow');setCanvasOpen(true);
+      setMsgs(m=>m.filter(x=>x.kind!=='synthing').concat({role:'ai',kind:'synthed'}));
+      setSynthing(false);
+    },1500);
+  };
+  const removeArtifact=(id)=>{
+    const next=artifacts.filter(x=>x.id!==id);
+    setArtifacts(next);
+    if(view===id) setView('list');
+    if(!next.length) setCanvasOpen(false);
+  };
+
+  const renderAi=(m,i)=>{
+    const k=m.kind;
+    if(k==='chem'||k==='lih') return React.createElement('div',{key:i},
+      React.createElement(ToolCall,{n:k==='lih'?1:3}),React.createElement('div',{style:{height:8}}),
+      k==='lih'?React.createElement(AiLih):React.createElement(AiChem));
+    if(k==='frameq'){
+      const st=FRAME_STEPS[m.step]; if(!st) return null;
+      const activeq=frameStep===m.step;   // only the current, unanswered question shows its options
+      return React.createElement('div',{key:i,className:'msg-ai'},
+        m.step===0&&React.createElement('p',{className:'lead',style:{marginBottom:10}},"Let's frame the problem together. I'll ask a few quick questions — pick an option or type your own answer."),
+        React.createElement('p',{style:{margin:'0 0 2px'}},React.createElement('span',{className:'frame-step'},'Question '+(m.step+1)+' of '+FRAME_STEPS.length),React.createElement('strong',{style:{display:'block',marginTop:4}},st.q)),
+        activeq&&React.createElement('div',{className:'quick'},
+          st.options.map(t=>React.createElement('button',{key:t,className:'chip',onClick:()=>answerFrame(t)},t))));
+    }
+    if(k==='framed') return React.createElement('div',{key:i,className:'msg-ai'},
+      React.createElement('div',{className:'status',style:{marginBottom:10}},React.createElement('span',{style:{color:'var(--primary)'}},IcCheck({s:16})),React.createElement('strong',null,'Problem framed')),
+      React.createElement('div',{className:'frame-recap'},
+        FRAME_STEPS.map((s,idx)=>React.createElement('div',{key:idx,className:'recap-row'},
+          React.createElement('span',{className:'recap-k'},s.label),
+          React.createElement('span',{className:'recap-v'},answers[idx]||'—')))),
+      React.createElement('p',{className:'lead',style:{marginTop:12,marginBottom:0}},'Got it — I’ll express this as a quantum model and generate the Qmod.'));
+    if(k==='qmod') return React.createElement('div',{key:i,className:'msg-ai'},
+      React.createElement(ToolCall,{n:1,label:'create_model · model.qmod'}),React.createElement('div',{style:{height:8}}),
+      React.createElement('p',null,'Here’s the Qmod model — it’s open in the canvas. Ready to build the quantum circuit?'),
+      React.createElement('div',{className:'action-card'},
+        React.createElement('div',{className:'item-media'},IcCode({s:16})),
+        React.createElement('div',{className:'item-content'},
+          React.createElement('div',{className:'item-title'},'model.qmod'),
+          React.createElement('div',{className:'item-desc'},'Generated from your framing · QAOA')),
+        React.createElement(Button,{variant:'primary',size:'sm',onClick:synthesize,disabled:synthing},IcChip({s:15}),'Synthesize')));
+    if(k==='synthing') return React.createElement('div',{key:i,className:'msg-ai'},
+      React.createElement('div',{className:'status'},React.createElement(Spinner,{s:15}),React.createElement('span',{style:{color:'var(--muted-foreground)'}},'Synthesizing circuit…')));
+    if(k==='synthed') return React.createElement('div',{key:i,className:'msg-ai'},
+      React.createElement('div',{className:'status',style:{marginBottom:8}},React.createElement('span',{style:{color:'var(--primary)'}},IcCheck({s:16})),React.createElement('strong',null,'Circuit synthesized')),
+      React.createElement('p',{className:'lead',style:{marginBottom:12}},'12 qubits · depth 34 · 96 gates — now open in the Quantum Program tab.'),
+      React.createElement('div',{className:'item card'},
+        React.createElement('div',{className:'item-media'},IcChip({s:16})),
+        React.createElement('div',{className:'item-content'},
+          React.createElement('div',{className:'item-title'},'Quantum Program'),
+          React.createElement('div',{className:'item-desc'},'QAOA portfolio · width 12 · depth 34')),
+        React.createElement('div',{className:'item-actions'},
+          React.createElement(Button,{size:'sm',variant:'ghost',icon:true,onClick:()=>{setCanvasOpen(true);setView('qflow');},'aria-label':'Open in canvas'},IcChevR({s:16})))));
+    return React.createElement('div',{key:i,className:'msg-ai'},React.createElement(AiChem));
+  };
+
+  const rail=!sidebar;
+  const ProfileMenu=(triggerEl)=>React.createElement(DropdownMenu,{align:'left',trigger:triggerEl},
+    React.createElement('div',{className:'menu-label'},'user@company.com'),
+    React.createElement('button',{className:'menu-item',onClick:()=>setSettingsOpen(true)},'Account settings'),
+    React.createElement('button',{className:'menu-item'},'Usage & billing'),
+    React.createElement('button',{className:'menu-item',onClick:()=>setDark(d=>!d)},dark?IcSun({s:15}):IcMoon({s:15}),dark?'Light mode':'Dark mode'),
+    React.createElement(Separator),
+    React.createElement('button',{className:'menu-item',style:{color:'var(--destructive)'}},'Sign out'));
+
+  const SidebarEl=React.createElement('aside',{className:cx('sidebar',rail&&'rail')},
+    React.createElement('div',{className:'sb-head'},
+      React.createElement('div',{className:'logo'},React.createElement(Logo,{mark:rail}))),
+    rail
+      ?React.createElement(React.Fragment,null,
+         React.createElement('div',{className:'sb-newbtn'},
+           React.createElement(Tooltip,{label:'New Session'},
+             React.createElement('button',{className:'railbtn',onClick:newSession,'aria-label':'New Session'},IcMsgPlus({s:19})))),
+         React.createElement('div',{style:{flex:1}}),
+         React.createElement('div',{className:'sb-foot'},
+           ProfileMenu(React.createElement('button',{className:'railbtn','aria-label':'Account'},React.createElement(Avatar,null,'UN')))))
+      :React.createElement(React.Fragment,null,
+         React.createElement('div',{className:'sb-newbtn'},
+           React.createElement('button',{className:'mrow',onClick:newSession},
+             React.createElement('span',{className:'mico'},IcMsgPlus({s:16})),
+             React.createElement('span',{className:'mlabel'},'New Session'))),
+         React.createElement('div',{className:'sb-scroll'},
+           recents.length>0&&React.createElement(React.Fragment,null,
+             React.createElement('div',{className:'sb-section'},'Recent'),
+             recents.map(r=>React.createElement('button',{key:r.id,className:cx('mrow',active===r.id&&'active'),onClick:()=>openRecent(r.id)},
+               active===r.id&&React.createElement('span',{className:'mdot'}),
+               React.createElement('span',{className:'mlabel'},r.title))),
+             recents.length>4&&React.createElement('button',{className:'mrow muted'},
+               React.createElement('span',{className:'mico'},IcDots({s:16})),
+               React.createElement('span',{className:'mlabel'},'More')))),
+         React.createElement('div',{className:'sb-foot'},
+           React.createElement('div',{className:'sb-section',style:{paddingTop:2}},'More from Classiq'),
+           [['Classiq Studio'],['Library'],['User Guide']].map(([t])=>
+             React.createElement('a',{key:t,className:'mrow',href:'#',onClick:e=>e.preventDefault()},
+               React.createElement('span',{className:'mlabel'},t),React.createElement('span',{className:'ext'},IcExt({s:15})))),
+           React.createElement('div',{style:{height:8}}),
+           ProfileMenu(React.createElement('button',{className:'profile'},
+             React.createElement(Avatar,null,'UN'),
+             React.createElement('div',{className:'who'},
+               React.createElement('div',{className:'nm'},'User Name'),
+               React.createElement('div',{className:'co'},'Company')),
+             React.createElement('span',{style:{color:'var(--muted-foreground)'}},IcChevUD({s:16})))))));
+
+  return React.createElement('div',{className:'app'},
+    SidebarEl,
+    React.createElement('div',{className:'workspace'},
+      React.createElement('header',{className:'topbar'},
+        React.createElement(Tooltip,{label:sidebar?'Collapse sidebar':'Expand sidebar'},
+          React.createElement(Button,{icon:true,size:'sm',onClick:()=>setSidebar(s=>!s),'aria-label':'Toggle sidebar'},IcPanel({s:18}))),
+        React.createElement('div',{className:'crumb'},
+          React.createElement('span',null,'Classiq Engineer'),IcChevR({s:14}),
+          React.createElement('span',{className:'cur'},started?(recents.find(r=>r.id===active)||{}).title||'New session':'New session')),
+        React.createElement('div',{className:'grow'}),
+        React.createElement(Tooltip,{label:'Toggle theme'},
+          React.createElement(Button,{icon:true,size:'sm',onClick:()=>setDark(d=>!d),'aria-label':'Toggle theme'},dark?IcSun({s:17}):IcMoon({s:17}))),
+        !canvasOpen&&started&&React.createElement(Button,{variant:'outline',size:'sm',onClick:()=>setCanvasOpen(true)},IcChip({s:15}),'Show canvas')),
+      React.createElement('div',{className:cx('split',resizing&&'resizing',(!canvasOpen||chatCollapsed)&&'nocanvas'),ref:splitRef},
+        canvasOpen&&chatCollapsed&&React.createElement(Tooltip,{label:'Show chat'},
+          React.createElement('button',{className:'chat-expand-rail',onClick:()=>setChatCollapsed(false),'aria-label':'Show chat panel'},
+            IcSpark({s:15}),IcChevR({s:16}))),
+        !(canvasOpen&&chatCollapsed)&&React.createElement('section',{className:'chat',style:canvasOpen?{flexBasis:chatBasis+'%'}:null},
+          canvasOpen&&started&&React.createElement('div',{className:'chat-head'},
+            React.createElement('span',{className:'chat-head-title'},IcSpark({s:14}),'Chat'),
+            React.createElement('div',{className:'grow'}),
+            React.createElement(Tooltip,{label:'Collapse chat'},
+              React.createElement(Button,{icon:true,size:'sm',onClick:()=>setChatCollapsed(true),'aria-label':'Collapse chat panel'},IcPanel({s:16})))),
+          started
+            ?React.createElement(React.Fragment,null,
+              React.createElement('div',{className:'chat-scroll',ref:scrollRef},
+                React.createElement('div',{className:'chat-inner'},
+                  msgs.map((m,i)=> m.role==='user'
+                    ?React.createElement('div',{key:i,className:'msg-user'},m.text)
+                    :React.createElement('div',{key:i,className:'ai-row'},
+                       React.createElement('div',{className:'ai-avatar'},IcSpark({s:15})),
+                       React.createElement('div',{className:'ai-body'},renderAi(m,i)))))),
+              React.createElement(Composer,{onSend:send,placeholder:canvasOpen?'Write me anything':undefined,autoFocus:canvasOpen}))
+            :React.createElement('div',{className:'greeting'},
+              React.createElement(RotatingHeadline,{items:HEADLINES,interval:5000}),
+              React.createElement(Composer,{onSend:send,centered:true}),
+              React.createElement('div',{className:'options'},
+                OPTIONS.map(o=>React.createElement('button',{key:o.id,disabled:o.parked,
+                    className:cx('option-card',o.primary&&'primary',o.parked&&'parked'),
+                    onClick:()=>{if(!o.parked)send(o.seed);}},
+                  React.createElement('span',{className:'oc-icon'},o.icon({s:20})),
+                  React.createElement('span',{className:'oc-text'},
+                    React.createElement('span',{className:'oc-title'},o.title),
+                    React.createElement('span',{className:'oc-sub'},o.sub))))))),
+        canvasOpen&&!chatCollapsed&&React.createElement('div',{className:'resizer',role:'separator','aria-orientation':'vertical',
+          'aria-label':'Resize chat and canvas','aria-valuemin':15,'aria-valuemax':35,'aria-valuenow':Math.round(chatBasis),
+          tabIndex:0,onPointerDown:startDrag,onKeyDown:keyResize,onDoubleClick:()=>setChatBasis(44)},
+          React.createElement('div',{className:'grip'})),
+        canvasOpen&&React.createElement(Canvas,{artifacts:artifacts,view:view,setView:setView,onRemove:(id)=>setPendingRemove(id),onRename:(id,label)=>setArtifacts(a=>a.map(x=>x.id===id?Object.assign({},x,{label:label}):x)),onClose:()=>setCanvasOpen(false),dark:dark,onReport:()=>{setArtifacts(a=>a.some(x=>x.id==='hhlreport')?a:[...a,{id:'hhlreport',type:'code',label:'HHL Results Report',badge:'Report',render:'report',src:'hhl_final_report.html'}]);setView('hhlreport');}}))),
+    settingsOpen&&React.createElement(ProfileSettingsModal,{onClose:()=>setSettingsOpen(false)}),
+    pendingRemove&&React.createElement(ConfirmModal,{title:'Remove artifact?',
+      desc:'This removes “'+((artifacts.find(a=>a.id===pendingRemove)||{}).label||'this artifact')+'” from your artifacts. You can’t undo this.',
+      confirmLabel:'Delete',destructive:true,
+      onConfirm:()=>{removeArtifact(pendingRemove);setPendingRemove(null);},
+      onCancel:()=>setPendingRemove(null)}));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+<script>
+  (function(){
+    try{
+      var src=document.getElementById('app-src').textContent;
+      var out=Babel.transform(src,{presets:[['react',{runtime:'classic'}]]}).code;
+      var s=document.createElement('script');s.textContent=out;document.body.appendChild(s);
+    }catch(e){
+      document.getElementById('root').innerHTML=
+        '<pre style="color:#f87171;font:13px monospace;padding:24px;white-space:pre-wrap">'+(e&&e.message?e.message:e)+'</pre>';
+    }
+  })();
+</script>
+</body>
+</html>

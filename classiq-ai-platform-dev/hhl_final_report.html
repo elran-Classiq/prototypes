@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HHL Results Report</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #111111; --muted: #6B7280; --rule: #E5E7EB;
+    --th-bg: #F3F4F6; --banner-bg: #F0FDF4; --banner-accent: #16A34A;
+    --banner-text: #374151; --green-bg: #DCFCE7; --green-fg: #166534;
+    --blue-bg: #DBEAFE; --blue-fg: #1E40AF; --link: #2563EB;
+    --foot: #9CA3AF; --img-bg: #ffffff; --img-shadow: rgba(0,0,0,0.10);
+    --chart-surface: #fcfcfb; --s-blue: #2a78d6; --s-aqua: #1baf7a;
+    --s-good: #0ca30c; --s-neutral: #c2c8d0;
+    color-scheme: light;
+  }
+  .dark {
+    --bg: #0e0e10; --fg: #ededed; --muted: #a3a3a3; --rule: #2f2f2f;
+    --th-bg: #1e1e1e; --banner-bg: #14251b; --banner-accent: #4ade80;
+    --banner-text: #cbd5e1; --green-bg: #16351f; --green-fg: #6ee7a0;
+    --blue-bg: #17233f; --blue-fg: #93b4ff; --link: #7fa9ff;
+    --foot: #6b7280; --img-bg: #f6f6f6; --img-shadow: rgba(0,0,0,0.5);
+    --chart-surface: #17171a; --s-blue: #3987e5; --s-aqua: #199e70;
+    --s-good: #0ca30c; --s-neutral: #3f3f46;
+    color-scheme: dark;
+  }
+  html, body { background: var(--bg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         max-width: 860px; margin: 40px auto; padding: 0 24px; color: var(--fg);
+         transition: background .18s ease, color .18s ease; }
+  h1 { font-size: 1.7em; margin-bottom: 4px; }
+  h2 { font-size: 1.15em; margin-top: 2em; border-bottom: 2px solid var(--rule); padding-bottom: 6px; }
+  .subtitle { color: var(--muted); }
+  .banner { background: var(--banner-bg); border-left: 5px solid var(--banner-accent);
+             padding: 16px 20px; border-radius: 6px; margin: 20px 0; }
+  .banner .fidelity { font-size: 2.4em; font-weight: 700; color: var(--banner-accent); }
+  .banner p { margin: 4px 0; color: var(--banner-text); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 0.93em; }
+  th { background: var(--th-bg); text-align: left; padding: 8px 12px; }
+  td { padding: 7px 12px; border-bottom: 1px solid var(--rule); }
+  .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.88em; }
+  img { max-width: 100%; border-radius: 6px; margin: 10px 0; background: var(--img-bg);
+        box-shadow: 0 1px 6px var(--img-shadow); }
+  .pill { display:inline-block; padding: 2px 10px; border-radius: 99px;
+           font-size: 0.82em; font-weight: 600; }
+  .green { background: var(--green-bg); color: var(--green-fg); }
+  .blue  { background: var(--blue-bg); color: var(--blue-fg); }
+  .link  { color: var(--link); }
+  footer { margin-top: 3em; font-size: 0.82em; color: var(--foot); border-top: 1px solid var(--rule); padding-top: 12px; }
+  /* inline SVG charts — theme-aware, replace the baked-in PNGs */
+  figure.chart { margin: 14px 0; }
+  .chart svg { display: block; width: 100%; height: auto; background: var(--chart-surface);
+               border: 1px solid var(--rule); border-radius: 8px; }
+  .chart text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .chart .c-title { fill: var(--fg); font-weight: 700; font-size: 19px; }
+  .chart .c-axis  { fill: var(--muted); font-size: 13px; }
+  .chart .c-tick  { fill: var(--muted); font-size: 12px; font-family: "SFMono-Regular", Consolas, monospace; }
+  .chart .c-val   { fill: var(--muted); font-size: 12px; font-family: "SFMono-Regular", Consolas, monospace; }
+  .chart .c-leg   { fill: var(--fg); font-size: 14px; }
+  .chart .c-grid  { stroke: var(--rule); stroke-width: 1; }
+  .chart .c-base  { stroke: var(--muted); stroke-width: 1; opacity: .6; }
+  .chart .bar-blue { fill: var(--s-blue); }
+  .chart .bar-aqua { fill: var(--s-aqua); }
+  .chart .bar-good { fill: var(--s-good); }
+  .chart .bar-mut  { fill: var(--s-neutral); }
+  .chart .bar-blue, .chart .bar-aqua, .chart .bar-good, .chart .bar-mut { transition: fill .18s ease; }
+</style>
+</head>
+<body>
+<script>
+  /* Theme is driven by the host app via postMessage; falls back to the OS preference when opened standalone. */
+  function applyTheme(t){ document.documentElement.classList.toggle('dark', t === 'dark'); }
+  window.addEventListener('message', function(e){
+    if (e.data && e.data.type === 'theme') applyTheme(e.data.theme);
+  });
+  applyTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+</script>
+
+<h1>HHL Algorithm — Final Results Report</h1>
+<p class="subtitle">Solving <strong>Ax = b</strong> for a 2×2 diagonal system on the Classiq statevector simulator</p>
+
+<!-- ── Summary banner ── -->
+<div class="banner">
+  <div class="fidelity">100.00%</div>
+  <p><strong>Fidelity</strong> — how closely the HHL quantum solution matches the classical answer</p>
+  <p>Relative error: <strong class="mono">2.14e-15</strong> &nbsp;|&nbsp;
+     Backend: <span class="pill blue">Classiq statevector simulator</span> &nbsp;|&nbsp;
+     Post-selected entries: <strong>2 / 16</strong></p>
+  <p><a class="link" href="https://platform.classiq.io/jobs/2c702125-d091-4430-b0b5-991fa0a0ad70" target="_blank">View job on Classiq platform ↗</a></p>
+</div>
+
+<!-- ── Problem recap ── -->
+<h2>Problem</h2>
+<table>
+  <tr><th>A (matrix)</th><td class="mono">[[0.25, 0.0], [0.0, 0.5]]</td></tr>
+  <tr><th>b (right-hand side)</th><td class="mono">[0.707107, 0.707107]</td></tr>
+  <tr><th>Classical solution (unnorm.)</th><td class="mono">[2.828427, 1.414214]</td></tr>
+  <tr><th>Quantum solution (unnorm.)</th><td class="mono">[2.828427, 1.414214]</td></tr>
+</table>
+
+<!-- ── Solution comparison chart ── -->
+<h2>Solution Comparison</h2>
+<p>Normalized directions of the quantum and classical solutions.
+   A fidelity of 100% means the two vectors point in exactly the same direction —
+   HHL found the correct answer.</p>
+<figure class="chart">
+<svg viewBox="0 0 780 448" role="img" aria-label="HHL versus classical solution, grouped bar chart">
+<text class="c-title" x="64" y="30" text-anchor="start">HHL vs Classical Solution</text>
+<rect class="bar-blue" x="470" y="19" width="14" height="14" rx="3"/>
+<text class="c-leg" x="490" y="30" dominant-baseline="middle">Classical</text>
+<rect class="bar-aqua" x="582" y="19" width="14" height="14" rx="3"/>
+<text class="c-leg" x="602" y="30" dominant-baseline="middle">HHL</text>
+<line class="c-grid" x1="64" y1="384.0" x2="760" y2="384.0"/>
+<text class="c-tick" x="54" y="388.0" text-anchor="end">0.0</text>
+<line class="c-grid" x1="64" y1="324.6" x2="760" y2="324.6"/>
+<text class="c-tick" x="54" y="328.6" text-anchor="end">0.2</text>
+<line class="c-grid" x1="64" y1="265.1" x2="760" y2="265.1"/>
+<text class="c-tick" x="54" y="269.1" text-anchor="end">0.4</text>
+<line class="c-grid" x1="64" y1="205.7" x2="760" y2="205.7"/>
+<text class="c-tick" x="54" y="209.7" text-anchor="end">0.6</text>
+<line class="c-grid" x1="64" y1="146.3" x2="760" y2="146.3"/>
+<text class="c-tick" x="54" y="150.3" text-anchor="end">0.8</text>
+<line class="c-grid" x1="64" y1="86.9" x2="760" y2="86.9"/>
+<text class="c-tick" x="54" y="90.9" text-anchor="end">1.0</text>
+<line class="c-base" x1="64" y1="384.0" x2="760" y2="384.0"/>
+<rect class="bar-blue" x="198.8" y="118.2" width="70" height="265.8" rx="4"><title>Classical: 0.894</title></rect><text class="c-val" x="233.8" y="110.2" text-anchor="middle">0.894</text>
+<rect class="bar-aqua" x="276.8" y="118.2" width="70" height="265.8" rx="4"><title>HHL: 0.894</title></rect><text class="c-val" x="311.8" y="110.2" text-anchor="middle">0.894</text>
+<text class="c-axis" x="272.8" y="410" text-anchor="middle">x₀</text>
+<rect class="bar-blue" x="477.2" y="251.1" width="70" height="132.9" rx="4"><title>Classical: 0.447</title></rect><text class="c-val" x="512.2" y="243.1" text-anchor="middle">0.447</text>
+<rect class="bar-aqua" x="555.2" y="251.1" width="70" height="132.9" rx="4"><title>HHL: 0.447</title></rect><text class="c-val" x="590.2" y="243.1" text-anchor="middle">0.447</text>
+<text class="c-axis" x="551.2" y="410" text-anchor="middle">x₁</text>
+<text class="c-axis" x="412.0" y="432" text-anchor="middle">Solution component index  i</text>
+<text class="c-axis" x="20" y="228.0" text-anchor="middle" transform="rotate(-90 20 228.0)">Normalized amplitude  xᵢ/‖x‖</text>
+</svg>
+</figure>
+
+<table>
+  <tr><th></th><th>x₀ (component 0)</th><th>x₁ (component 1)</th></tr>
+  <tr><td><strong>Classical</strong></td>
+      <td class="mono">0.894427</td>
+      <td class="mono">0.447214</td></tr>
+  <tr><td><strong>HHL (quantum)</strong></td>
+      <td class="mono">0.894427</td>
+      <td class="mono">0.447214</td></tr>
+  <tr><td><strong>Difference</strong></td>
+      <td class="mono">8.88e-16</td>
+      <td class="mono">1.94e-15</td></tr>
+</table>
+
+<!-- ── Full statevector chart ── -->
+<h2>Full Statevector</h2>
+<p>All 16 entries of the quantum state after execution.
+   <span class="pill green">Green bars</span> are the two post-selected entries
+   where indicator = 1 and QPE register = 0 — these are the valid HHL outcomes
+   that carry the solution. All other entries are either the failed-run branch or
+   floating-point noise (~10⁻¹⁶).</p>
+<figure class="chart">
+<svg viewBox="0 0 910 424" role="img" aria-label="Full statevector probability distribution, 16 entries">
+<text class="c-title" x="60" y="30" text-anchor="start">Full Statevector</text>
+<rect class="bar-good" x="640" y="19" width="14" height="14" rx="3"/>
+<text class="c-leg" x="660" y="30" dominant-baseline="middle">post-selected (valid HHL)</text>
+<line class="c-grid" x1="60" y1="372.0" x2="894" y2="372.0"/>
+<text class="c-tick" x="50" y="376.0" text-anchor="end">0.0</text>
+<line class="c-grid" x1="60" y1="310.4" x2="894" y2="310.4"/>
+<text class="c-tick" x="50" y="314.4" text-anchor="end">0.1</text>
+<line class="c-grid" x1="60" y1="248.8" x2="894" y2="248.8"/>
+<text class="c-tick" x="50" y="252.8" text-anchor="end">0.2</text>
+<line class="c-grid" x1="60" y1="187.2" x2="894" y2="187.2"/>
+<text class="c-tick" x="50" y="191.2" text-anchor="end">0.3</text>
+<line class="c-grid" x1="60" y1="125.6" x2="894" y2="125.6"/>
+<text class="c-tick" x="50" y="129.6" text-anchor="end">0.4</text>
+<line class="c-grid" x1="60" y1="64.0" x2="894" y2="64.0"/>
+<text class="c-tick" x="50" y="68.0" text-anchor="end">0.5</text>
+<line class="c-base" x1="60" y1="372.0" x2="894" y2="372.0"/>
+<rect class="bar-mut" x="71.1" y="82.5" width="30.0" height="289.5" rx="4"><title>entry 0: 0.470</title></rect>
+<text class="c-tick" x="86.1" y="394" text-anchor="middle">0</text>
+<rect class="bar-mut" x="123.2" y="142.8" width="30.0" height="229.2" rx="4"><title>entry 1: 0.372</title></rect>
+<text class="c-tick" x="138.2" y="394" text-anchor="middle">1</text>
+<rect class="bar-good" x="175.3" y="295.0" width="30.0" height="77.0" rx="4"><title>entry 2: 0.125</title></rect>
+<text class="c-tick" x="190.3" y="394" text-anchor="middle">2</text>
+<rect class="bar-good" x="227.4" y="352.9" width="30.0" height="19.1" rx="4"><title>entry 3: 0.031</title></rect>
+<text class="c-tick" x="242.4" y="394" text-anchor="middle">3</text>
+<text class="c-tick" x="294.6" y="394" text-anchor="middle">4</text>
+<text class="c-tick" x="346.7" y="394" text-anchor="middle">5</text>
+<text class="c-tick" x="398.8" y="394" text-anchor="middle">6</text>
+<text class="c-tick" x="450.9" y="394" text-anchor="middle">7</text>
+<text class="c-tick" x="503.1" y="394" text-anchor="middle">8</text>
+<text class="c-tick" x="555.2" y="394" text-anchor="middle">9</text>
+<text class="c-tick" x="607.3" y="394" text-anchor="middle">10</text>
+<text class="c-tick" x="659.4" y="394" text-anchor="middle">11</text>
+<text class="c-tick" x="711.6" y="394" text-anchor="middle">12</text>
+<text class="c-tick" x="763.7" y="394" text-anchor="middle">13</text>
+<text class="c-tick" x="815.8" y="394" text-anchor="middle">14</text>
+<text class="c-tick" x="867.9" y="394" text-anchor="middle">15</text>
+<text class="c-axis" x="477.0" y="410" text-anchor="middle">Statevector entry index</text>
+<text class="c-axis" x="18" y="218.0" text-anchor="middle" transform="rotate(-90 18 218.0)">Probability</text>
+</svg>
+</figure>
+
+<!-- ── How the solution was extracted ── -->
+<h2>How the Quantum Answer Was Extracted</h2>
+<ol>
+  <li><strong>Post-selection:</strong> Keep only statevector entries where
+      <span class="mono">indicator = 1</span> and <span class="mono">estimator_var = 0</span>.
+      This leaves 2 entries (one per memory basis state).</li>
+  <li><strong>Undo C scaling:</strong> Divide each amplitude by C = 1/2³ = 0.125.
+      The HHL circuit multiplied by C during eigenvalue inversion; dividing recovers
+      the relative magnitudes of x.</li>
+  <li><strong>Global phase correction:</strong> Multiply by e^{iθ} where θ = 0.7854 rad,
+      chosen so that A·x̂ aligns with b. The global phase is unphysical (unmeasurable),
+      but necessary to produce a real-valued comparison vector.</li>
+  <li><strong>Normalize:</strong> Divide by the vector norm to compare directions.
+      HHL outputs the <em>direction</em> of the solution, not its scale.</li>
+</ol>
+
+<!-- ── What this means ── -->
+<h2>What This Result Means for You</h2>
+<ul>
+  <li><strong>HHL is provably correct on this instance.</strong>
+      A 100% fidelity result, with residual error of 2e-15,
+      confirms the algorithm worked end-to-end: state preparation,
+      QPE, eigenvalue inversion, uncomputation, and post-selection all
+      functioned correctly.</li>
+  <li><strong>Why perfect fidelity?</strong>
+      A's eigenvalues (0.25 and 0.5) are exactly representable as 3-bit
+      binary fractions. QPE introduced zero approximation error.
+      Real-world problems have irrational eigenvalues, which require
+      more QPE qubits to maintain low error.</li>
+  <li><strong>The path to scale.</strong>
+      The same circuit structure — load b, QPE, invert, un-QPE — works
+      for N×N systems. Classiq's high-level SDK abstracts away the
+      gate-level complexity; you describe the algorithm, it synthesizes
+      the circuit. The interesting engineering challenge is encoding
+      large sparse A efficiently (block-encoding or QROM).</li>
+</ul>
+
+<!-- ── Artifacts produced ── -->
+<h2>Artifacts Produced This Session</h2>
+<table>
+  <tr><th>Step</th><th>File</th><th>Contents</th></tr>
+  <tr><td>1 – Framing</td><td class="mono">hhl_framing.md</td><td>Problem definition, algorithm choice</td></tr>
+  <tr><td>2 – Model</td><td class="mono">hhl_model.py</td><td>Classiq SDK model — synthesizes the circuit</td></tr>
+  <tr><td>2 – Model</td><td class="mono">hhl_circuit.json</td><td>Gate counts, depth, circuit link</td></tr>
+  <tr><td>2 – Model</td><td class="mono">hhl_qprog.json</td><td>Serialized quantum program (40 KB)</td></tr>
+  <tr><td>3 – Analysis</td><td class="mono">hhl_analyze.py / hhl_analysis.md</td><td>Circuit structure, complexity comparison</td></tr>
+  <tr><td>4 – Run</td><td class="mono">hhl_run.py / hhl_results.json</td><td>Raw statevector amplitudes, job URL</td></tr>
+  <tr><td>5 – Results</td><td class="mono">hhl_analyze_results.py / hhl_final_report.html</td><td>This report</td></tr>
+</table>
+
+<footer>Generated by AI Quantum Engineer · Classiq SDK · Statevector simulation · https://platform.classiq.io/jobs/2c702125-d091-4430-b0b5-991fa0a0ad70</footer>
+</body>
+</html>
